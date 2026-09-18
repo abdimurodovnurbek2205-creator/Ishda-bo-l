@@ -1,15 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LocationUpdatePayload } from '@repo/types';
+import { LocationUpdatePayload } from '../types';
 
-// Dynamic host detection: uses active browser/phone network IP so login works seamlessly on mobile
+// Dynamic host detection: uses brand new production Render server URL, fallback to local host
 const getDynamicHost = () => {
-  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
-    return window.location.hostname;
+  if (typeof window !== 'undefined' && window.location && window.location.hostname && window.location.hostname !== 'localhost') {
+    return `https://${window.location.hostname}/api`;
   }
-  return '192.168.100.37';
+  return 'https://ishda-bol-gps.onrender.com/api';
 };
 
-export const API_BASE_URL = `http://${getDynamicHost()}:3000/api`;
+export const API_BASE_URL = getDynamicHost();
 
 export async function getAuthToken(): Promise<string | null> {
   return await AsyncStorage.getItem('auth_token');

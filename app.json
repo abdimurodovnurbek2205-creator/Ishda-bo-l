@@ -6,13 +6,15 @@
     "owner": "nurbekabdimurodovs-team",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "extra": {
+      "eas": {
+        "projectId": "f4159885-49fc-4fa6-abe7-049b8fdcd171"
+      }
+    },
     "ios": {
       "supportsTablet": false,
       "infoPlist": {
-        "UIBackgroundModes": [
-          "location",
-          "fetch"
-        ],
+        "UIBackgroundModes": ["location", "fetch"],
         "NSLocationWhenInUseUsageDescription": "Bandixon tumani GPS monitoring tizimi ish vaqtida geolokatsiyangizni kuzatish uchun ruxsat talab qiladi.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Ish rejimi vaqtida fonda ham GPS koordinatalaringizni serverga uzatish uchun ruxsat berishingiz lozim."
       }
@@ -26,11 +28,6 @@
         "FOREGROUND_SERVICE",
         "INTERNET"
       ]
-    },
-    "extra": {
-      "eas": {
-        "projectId": "f4159885-49fc-4fa6-abe7-049b8fdcd171"
-      }
     }
   }
 }

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LocationUpdatePayload } from '@repo/types';
+import { LocationUpdatePayload } from '../types';
 import { sendBatchLocations } from './apiService';
 
 const QUEUE_STORAGE_KEY = '@offline_gps_queue';

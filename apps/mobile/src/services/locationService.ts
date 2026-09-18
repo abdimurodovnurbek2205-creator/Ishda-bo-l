@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LocationUpdatePayload } from '@repo/types';
+import { LocationUpdatePayload } from '../types';
 import { sendLocationPoint } from './apiService';
 import { enqueueLocation, flushOfflineQueue } from './offlineQueue';
 
