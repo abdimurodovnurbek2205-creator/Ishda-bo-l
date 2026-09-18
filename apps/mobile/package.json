@@ -1,0 +1,33 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build:apk": "eas build -p android --profile preview --local",
+    "build:apk:cloud": "eas build -p android --profile preview",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~4.0.0",
+    "@react-native-async-storage/async-storage": "~1.23.1",
+    "@repo/types": "*",
+    "expo": "~52.0.0",
+    "expo-location": "~17.0.1",
+    "expo-status-bar": "~1.12.1",
+    "expo-task-manager": "~11.8.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-native": "0.76.5",
+    "react-native-web": "~0.19.13"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@types/react": "~18.3.1",
+    "typescript": "^5.4.5"
+  }
+}

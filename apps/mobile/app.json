@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Bandixon GPS Monitoring",
+    "slug": "bandixon-gps-monitoring",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "UIBackgroundModes": ["location", "fetch"],
+        "NSLocationWhenInUseUsageDescription": "Bandixon tumani GPS monitoring tizimi ish vaqtida geolokatsiyangizni kuzatish uchun ruxsat talab qiladi.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Ish rejimi vaqtida fonda ham GPS koordinatalaringizni serverga uzatish uchun ruxsat berishingiz lozim."
+      }
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "INTERNET"
+      ]
+    }
+  }
+}

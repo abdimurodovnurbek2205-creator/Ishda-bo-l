@@ -1,0 +1,11 @@
+node_modules
+.next
+dist
+build
+.expo
+*.log
+.DS_Store
+.env
+.env.local
+.env.*
+packages/database/data
