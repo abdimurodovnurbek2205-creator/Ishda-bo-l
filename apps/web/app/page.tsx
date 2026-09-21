@@ -28,6 +28,8 @@ export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [currentEmployee, setCurrentEmployee] = useState<any>(null);
 
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<string>('');
+
   const fetchAuth = async () => {
     const token = localStorage.getItem('auth_token');
     if (!token) {
@@ -51,12 +53,17 @@ export default function DashboardPage() {
   };
 
   const fetchSummary = async () => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/location/live');
+      const res = await fetch(`/api/location/live?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+      });
       const data = await res.json();
       if (data.employees) {
         setEmployees(data.employees);
       }
+      setLastRefreshedAt(new Date().toLocaleTimeString('uz-UZ'));
     } catch (err) {
       console.error('Failed to fetch live summary', err);
     } finally {
@@ -103,20 +110,28 @@ export default function DashboardPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-500/20 text-sky-300 rounded-full text-xs font-semibold mb-2 border border-sky-400/30">
                 <Radio className="w-3.5 h-3.5 animate-pulse text-sky-400" />
-                Jonli GPS Monitoring Faol
+                Jonli GPS Nazorat Tizimi
               </div>
               <h1 className="text-2xl font-bold">Bandixon Tumani GPS Nazorat Markazi</h1>
               <p className="text-slate-300 text-xs mt-1">
                 Surxondaryo viloyati bo‘yicha barcha xodimlarning ish vaqti va harakatlanish geolokatsiyasi
               </p>
             </div>
-            <button
-              onClick={fetchSummary}
-              className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors shadow-sm"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Yangilash
-            </button>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <button
+                onClick={fetchSummary}
+                className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-all shadow-sm cursor-pointer"
+                title="Ma'lumotlarni real-vaqtda qayta yangilash"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Yangilash
+              </button>
+              {lastRefreshedAt && (
+                <span className="text-[10px] text-sky-300 font-medium">
+                  So‘nggi yangilanish: {lastRefreshedAt}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Stats Counter Grid */}
@@ -126,7 +141,7 @@ export default function DashboardPage() {
               <div>
                 <p className="text-xs font-medium text-slate-500">Jami Xodimlar</p>
                 <h3 className="text-2xl font-bold text-slate-900 mt-1">{totalCount} kishi</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Ro‘yxatdagi tarkib</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Bo‘lim shtat ro‘yxati</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
                 <Users className="w-6 h-6" />
@@ -136,10 +151,10 @@ export default function DashboardPage() {
             {/* 2. Currently Working */}
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500">Hozir Ishda</p>
+                <p className="text-xs font-medium text-slate-500">Hozir Ishda (Faol)</p>
                 <h3 className="text-2xl font-bold text-emerald-600 mt-1">{workingCount} kishi</h3>
                 <p className="text-[11px] text-emerald-700 mt-0.5 font-medium flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> GPS aloqa faol
+                  <CheckCircle2 className="w-3 h-3" /> Ish seansi faol
                 </p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -150,10 +165,10 @@ export default function DashboardPage() {
             {/* 3. Delayed / Offline */}
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500">Offline / Kechikayotgan</p>
+                <p className="text-xs font-medium text-slate-500">Kechikkan / Offline</p>
                 <h3 className="text-2xl font-bold text-amber-600 mt-1">{delayedCount + offlineCount} kishi</h3>
                 <p className="text-[11px] text-amber-700 mt-0.5 font-medium flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" /> Signali kechikkan
+                  <AlertTriangle className="w-3 h-3" /> Signal kechikkan
                 </p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -166,7 +181,7 @@ export default function DashboardPage() {
               <div>
                 <p className="text-xs font-medium text-slate-500">Ishda Emas</p>
                 <h3 className="text-2xl font-bold text-slate-600 mt-1">{notWorkingCount} kishi</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Seans yakunlangan</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Seans boshlanmagan</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center">
                 <Clock className="w-6 h-6" />

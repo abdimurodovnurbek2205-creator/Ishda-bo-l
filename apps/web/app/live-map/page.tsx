@@ -28,8 +28,12 @@ function LiveMapContent() {
   const selectedIdFromQuery = searchParams.get('selected');
 
   const fetchLive = async () => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/location/live');
+      const res = await fetch(`/api/location/live?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+      });
       const data = await res.json();
       if (data.employees) {
         setEmployees(data.employees);
