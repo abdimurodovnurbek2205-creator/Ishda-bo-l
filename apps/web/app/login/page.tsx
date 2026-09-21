@@ -6,8 +6,8 @@ import { Shield, Lock, Mail, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [identifier, setIdentifier] = useState('+998901234567');
-  const [password, setPassword] = useState('shuxrat123');
+  const [identifier, setIdentifier] = useState('+998993361988');
+  const [password, setPassword] = useState('shuxrat2026');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -66,7 +66,7 @@ export default function LoginPage() {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="+998901234567 yoki login"
+                placeholder="+998993361988"
                 className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
               />
             </div>
@@ -97,9 +97,9 @@ export default function LoginPage() {
 
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-500 space-y-1">
             <p className="font-semibold text-slate-700">Bo‘lim boshlig‘i (Boshqaruv paneli):</p>
-            <p>Bo‘lim boshlig‘i: <code className="text-sky-700 font-semibold">Bo‘riyev Shuxrat</code></p>
-            <p>Login: <code className="text-sky-700 font-mono">+998901234567</code> / <code className="font-mono">boriyev@bandixon.gov.uz</code></p>
-            <p>Parol: <code className="font-mono text-slate-800 font-bold">shuxrat123</code></p>
+            <p>Bo‘lim boshlig‘i: <code className="text-sky-700 font-semibold">Bo‘riyev Shuxrat Xursandovich</code></p>
+            <p>Telefon / Login: <code className="text-sky-700 font-mono">+998993361988</code></p>
+            <p>Parol: <code className="font-mono text-slate-800 font-bold">shuxrat2026</code></p>
           </div>
         </form>
       </div>

@@ -1,12 +1,45 @@
 {
   "users": [
     {
-      "id": "usr-admin-1",
-      "name": "Bo‘riyev Shuxrat",
-      "email": "boriyev@bandixon.gov.uz",
-      "phone": "+998901234567",
+      "id": "usr-shuxrat",
+      "name": "Bo‘riyev Shuxrat Xursandovich",
+      "email": "shuxrat@bandixon.gov.uz",
+      "phone": "+998993361988",
       "role": "ADMIN",
-      "passwordHash": "57b6f3a37b3f9479cfca142d138d6263b655f448ea9ef3688f8d68ef2dd6ee17",
+      "passwordHash": "e426a837bbd1ad0168da33577465a62e6ae94c0632a4fdd3640061cd883a319a",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-adham",
+      "name": "Abdurazzoqov Adham Ibragimovich",
+      "email": "adham@bandixon.gov.uz",
+      "phone": "+998999509300",
+      "role": "EMPLOYEE",
+      "passwordHash": "6dcaf63d586342a7cdd5956944a1cd1d6c68b1669b0ef57d6b3f0b71220621c1",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-nurbek",
+      "name": "Abdimurodov Nurbek Maxmud o‘g‘li",
+      "email": "nurbek@bandixon.gov.uz",
+      "phone": "+998958702122",
+      "role": "EMPLOYEE",
+      "passwordHash": "22d775f20c2fe9dcad7181df4a95fcd6d64e32e063cce25fc75e0999c2fb2604",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-sirojiddin",
+      "name": "Eshboyev Sirojiddin Urol o‘g‘li",
+      "email": "sirojiddin@bandixon.gov.uz",
+      "phone": "+998978489495",
+      "role": "EMPLOYEE",
+      "passwordHash": "f737e0f0a86181bdd9dedbd7cc487b3e1c35e14e899f465871ac3bbe27f8858a",
       "isActive": true,
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
@@ -14,12 +47,48 @@
   ],
   "employees": [
     {
-      "id": "emp-admin-1",
-      "userId": "usr-admin-1",
+      "id": "emp-shuxrat",
+      "userId": "usr-shuxrat",
       "employeeCode": "EMP-001",
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Bo‘lim boshlig‘i",
       "isTrackingEnabled": false,
+      "workingHoursStart": "08:00",
+      "workingHoursEnd": "17:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-adham",
+      "userId": "usr-adham",
+      "employeeCode": "EMP-101",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Prognoz bo‘yicha yetakchi mutaxassis",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "08:00",
+      "workingHoursEnd": "17:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-nurbek",
+      "userId": "usr-nurbek",
+      "employeeCode": "EMP-102",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Akt bo‘yicha yetakchi mutaxassis",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "08:00",
+      "workingHoursEnd": "17:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-sirojiddin",
+      "userId": "usr-sirojiddin",
+      "employeeCode": "EMP-103",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Davlat inspektori",
+      "isTrackingEnabled": true,
       "workingHoursStart": "08:00",
       "workingHoursEnd": "17:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
