@@ -200,7 +200,7 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
             <div className="bg-slate-950/40 p-3 rounded-lg border border-slate-800 space-y-1">
               <span className="text-[10px] text-slate-400 font-semibold block uppercase">Ish Rejimi</span>
               <p className="font-bold text-slate-200 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-slate-400" /> 08:00 - 17:00
+                <Clock className="w-3.5 h-3.5 text-slate-400" /> {employee?.workingHoursStart || '09:00'} - {employee?.workingHoursEnd || '18:00'}
               </p>
             </div>
           </div>

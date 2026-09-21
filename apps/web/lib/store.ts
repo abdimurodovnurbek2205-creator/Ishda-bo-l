@@ -105,8 +105,8 @@ export const storeService = {
       department: data.department,
       position: data.position,
       isTrackingEnabled: true,
-      workingHoursStart: data.workingHoursStart || '08:00',
-      workingHoursEnd: data.workingHoursEnd || '17:00',
+      workingHoursStart: data.workingHoursStart || '09:00',
+      workingHoursEnd: data.workingHoursEnd || '18:00',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       user,
@@ -308,15 +308,13 @@ export const storeService = {
       }
 
       if (activeSession) {
-        if (lastUpdateAgoSeconds !== undefined && lastUpdateAgoSeconds <= 600) {
-          status = 'WORKING'; // Green: active and sent update in last 10m
-        } else if (lastUpdateAgoSeconds !== undefined && lastUpdateAgoSeconds <= 1800) {
-          status = 'DELAYED'; // Yellow: active but last update 10-30m ago
+        if (lastUpdateAgoSeconds !== undefined && lastUpdateAgoSeconds > 1800) {
+          status = 'DELAYED'; // Yellow: Active session ongoing, internet signal paused
         } else {
-          status = 'OFFLINE'; // Red/Gray: active but no update for >30m
+          status = 'WORKING'; // Green: Active ongoing work session
         }
       } else {
-        status = 'NOT_WORKING'; // Gray: no active session
+        status = 'NOT_WORKING'; // Gray: Session ended or not started
       }
 
       const currentDistrict = latestLoc?.district || 'Bandixon tumani';
