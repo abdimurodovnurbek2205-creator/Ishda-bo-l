@@ -47,11 +47,10 @@ export default function LoginPage() {
           </div>
           <h2 className="text-xl font-bold">BANDIXON MONITORING</h2>
           <p className="text-xs text-sky-100 mt-1">Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi</p>
-          <p className="text-[11px] text-sky-200 mt-0.5 font-medium">Bo‘lim boshlig‘i va Xodimlar uchun yagona kirish</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
+        <form onSubmit={handleSubmit} autoComplete="off" className="p-6 space-y-4 text-xs">
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 font-semibold text-center">
               {error}
@@ -65,6 +64,7 @@ export default function LoginPage() {
               <input
                 type="text"
                 required
+                autoComplete="off"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="+998901234567"
@@ -80,6 +80,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 required
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="******"
@@ -96,11 +97,6 @@ export default function LoginPage() {
             {loading ? 'Tekshirilmoqda...' : 'Tizimga Kirish'}
             <ArrowRight className="w-4 h-4" />
           </button>
-
-          <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-500 space-y-1 text-center">
-            <p className="font-semibold text-slate-700">Tizimga Kirish Qo‘llanmasi</p>
-            <p>Bo‘lim boshlig‘i hamda barcha xodimlar o‘zlariga ajratilgan Telefon raqami va Parol orqali ushbu yagona oyna orqali kiradilar.</p>
-          </div>
         </form>
       </div>
     </div>
