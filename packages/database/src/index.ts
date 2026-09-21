@@ -210,6 +210,122 @@ class MemoryDatabase {
     };
     this.employees.set(emp3.id, emp3);
 
+    // 5. Boboqulov Adham Xushboq o'g'li (Davlat inspektori)
+    const emp4User: User & { passwordHash: string } = {
+      id: 'usr-boboqulov',
+      name: 'Boboqulov Adham Xushboq o‘g‘li',
+      email: 'boboqulov@bandixon.gov.uz',
+      phone: '+998933139495',
+      role: 'EMPLOYEE',
+      passwordHash: hashPassword('adham9495'),
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.users.set(emp4User.id, emp4User);
+
+    const emp4: Employee = {
+      id: 'emp-boboqulov',
+      userId: emp4User.id,
+      employeeCode: 'EMP-104',
+      department: 'Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi',
+      position: 'Davlat inspektori',
+      isTrackingEnabled: true,
+      workingHoursStart: '08:00',
+      workingHoursEnd: '17:00',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      user: emp4User,
+    };
+    this.employees.set(emp4.id, emp4);
+
+    // 6. Yuldashev Eldor Turdimurot o'g'li (Davlat inspektori)
+    const emp5User: User & { passwordHash: string } = {
+      id: 'usr-yuldashev',
+      name: 'Yuldashev Eldor Turdimurot o‘g‘li',
+      email: 'yuldashev@bandixon.gov.uz',
+      phone: '+998950681797',
+      role: 'EMPLOYEE',
+      passwordHash: hashPassword('eldor1797'),
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.users.set(emp5User.id, emp5User);
+
+    const emp5: Employee = {
+      id: 'emp-yuldashev',
+      userId: emp5User.id,
+      employeeCode: 'EMP-105',
+      department: 'Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi',
+      position: 'Davlat inspektori',
+      isTrackingEnabled: true,
+      workingHoursStart: '08:00',
+      workingHoursEnd: '17:00',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      user: emp5User,
+    };
+    this.employees.set(emp5.id, emp5);
+
+    // 7. Yusupov Abdunazar Almurat o'g'li (Davlat inspektori)
+    const emp6User: User & { passwordHash: string } = {
+      id: 'usr-yusupov',
+      name: 'Yusupov Abdunazar Almurat o‘g‘li',
+      email: 'yusupov@bandixon.gov.uz',
+      phone: '+998888460698',
+      role: 'EMPLOYEE',
+      passwordHash: hashPassword('abdunazar0698'),
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.users.set(emp6User.id, emp6User);
+
+    const emp6: Employee = {
+      id: 'emp-yusupov',
+      userId: emp6User.id,
+      employeeCode: 'EMP-106',
+      department: 'Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi',
+      position: 'Davlat inspektori',
+      isTrackingEnabled: true,
+      workingHoursStart: '08:00',
+      workingHoursEnd: '17:00',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      user: emp6User,
+    };
+    this.employees.set(emp6.id, emp6);
+
+    // 8. O'rozov Isomiddin Azamat o'g'li (Davlat inspektori)
+    const emp7User: User & { passwordHash: string } = {
+      id: 'usr-orozov',
+      name: 'O‘rozov Isomiddin Azamat o‘g‘li',
+      email: 'orozov@bandixon.gov.uz',
+      phone: '+998992652707',
+      role: 'EMPLOYEE',
+      passwordHash: hashPassword('isomiddin2707'),
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.users.set(emp7User.id, emp7User);
+
+    const emp7: Employee = {
+      id: 'emp-orozov',
+      userId: emp7User.id,
+      employeeCode: 'EMP-107',
+      department: 'Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi',
+      position: 'Davlat inspektori',
+      isTrackingEnabled: true,
+      workingHoursStart: '08:00',
+      workingHoursEnd: '17:00',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      user: emp7User,
+    };
+    this.employees.set(emp7.id, emp7);
+
     // Seed default Geofence: Bandixon tuman O'simliklar karantini va himoyasi bo'limi
     const gf1: Geofence = {
       id: 'gf-1',
