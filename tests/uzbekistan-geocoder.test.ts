@@ -3,8 +3,8 @@ import { detectUzbekistanDistrict } from '../apps/web/lib/uzbekistan-geocoder.js
 
 describe('Uzbekistan District Detection', () => {
   it('should detect Bandixon District, Surxondaryo Region correctly from GPS coordinates', () => {
-    // Bandixon District Center coordinates: 37.5255, 67.2458
-    const result = detectUzbekistanDistrict(37.5255, 67.2458);
+    // Bandixon HQ coordinates: 37.84244, 67.37775
+    const result = detectUzbekistanDistrict(37.84244, 67.37775);
     expect(result.region).toBe('Surxondaryo viloyati');
     expect(result.district).toBe('Bandixon tumani');
   });

@@ -11,7 +11,7 @@ interface DistrictBoundary {
 // Key Uzbekistan Districts with centroids & coverage radius
 const UZBEKISTAN_DISTRICTS: DistrictBoundary[] = [
   // Surxondaryo Region
-  { region: 'Surxondaryo viloyati', district: 'Bandixon tumani', centerLat: 37.5255, centerLng: 67.2458, radiusKm: 18 },
+  { region: 'Surxondaryo viloyati', district: 'Bandixon tumani', centerLat: 37.842429, centerLng: 67.377811, radiusKm: 25 },
   { region: 'Surxondaryo viloyati', district: 'Qumqo‘rg‘on tumani', centerLat: 37.4950, centerLng: 67.4100, radiusKm: 25 },
   { region: 'Surxondaryo viloyati', district: 'Termiz shahri', centerLat: 37.2242, centerLng: 67.2783, radiusKm: 12 },
   { region: 'Surxondaryo viloyati', district: 'Termiz tumani', centerLat: 37.2800, centerLng: 67.3100, radiusKm: 20 },
@@ -22,7 +22,7 @@ const UZBEKISTAN_DISTRICTS: DistrictBoundary[] = [
   { region: 'Surxondaryo viloyati', district: 'Angor tumani', centerLat: 37.3000, centerLng: 67.1000, radiusKm: 15 },
   { region: 'Surxondaryo viloyati', district: 'Muzrabot tumani', centerLat: 37.3500, centerLng: 66.8500, radiusKm: 25 },
   { region: 'Surxondaryo viloyati', district: 'Sho‘rchi tumani', centerLat: 37.9900, centerLng: 67.7800, radiusKm: 20 },
-  { region: 'Surxondaryo viloyati', district: 'Oltinsoy tumani', centerLat: 38.0800, centerLng: 67.6200, radiusKm: 20 },
+  { region: 'Surxondaryo viloyati', district: 'Oltinsoy tumani', centerLat: 38.1800, centerLng: 67.6500, radiusKm: 20 },
   { region: 'Surxondaryo viloyati', district: 'Uzun tumani', centerLat: 38.3500, centerLng: 68.1000, radiusKm: 30 },
   { region: 'Surxondaryo viloyati', district: 'Sariosiyo tumani', centerLat: 38.4500, centerLng: 67.9200, radiusKm: 40 },
   { region: 'Surxondaryo viloyati', district: 'Qiziriq tumani', centerLat: 37.6000, centerLng: 67.0500, radiusKm: 20 },
