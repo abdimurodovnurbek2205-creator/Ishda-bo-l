@@ -211,37 +211,82 @@ export default function MapView({
 
       const coords: [number, number][] = routePoints.map((p) => [p.latitude, p.longitude]);
 
+      // Render Polyline Path
       if (coords.length >= 2) {
         const polyline = L.polyline(coords, {
           color: '#0284c7',
           weight: 5,
-          opacity: 0.8,
+          opacity: 0.85,
           lineJoin: 'round',
+          lineCap: 'round',
         });
         routeLayerRef.current.addLayer(polyline);
       }
 
-      // Start Marker (Green)
-      const startPoint = routePoints[0];
-      const startMarker = L.circleMarker([startPoint.latitude, startPoint.longitude], {
-        radius: 8,
-        fillColor: '#10b981',
-        color: '#ffffff',
-        weight: 3,
-        fillOpacity: 1,
-      }).bindPopup(`<b>Boshlanish joyi</b><br>${startPoint.district || ''}`);
-      routeLayerRef.current.addLayer(startMarker);
+      // Render Intermediate Waypoint Markers (Turns & Stops along the street)
+      routePoints.forEach((pt, index) => {
+        const timeStr = pt.timestamp
+          ? new Date(pt.timestamp).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+          : '';
+        const speedStr = pt.speed ? `${pt.speed} km/s` : '0 km/s';
 
-      // End Marker (Red)
-      const endPoint = routePoints[routePoints.length - 1];
-      const endMarker = L.circleMarker([endPoint.latitude, endPoint.longitude], {
-        radius: 8,
-        fillColor: '#ef4444',
-        color: '#ffffff',
-        weight: 3,
-        fillOpacity: 1,
-      }).bindPopup(`<b>Oxirgi joylashuv</b><br>${endPoint.district || ''}`);
-      routeLayerRef.current.addLayer(endMarker);
+        if (index === 0) {
+          // Start Marker (Green Pin)
+          const startMarker = L.circleMarker([pt.latitude, pt.longitude], {
+            radius: 10,
+            fillColor: '#10b981',
+            color: '#ffffff',
+            weight: 3,
+            fillOpacity: 1,
+          }).bindPopup(`
+            <div class="p-1 text-xs">
+              <h5 class="font-bold text-emerald-700">🚀 Boshlanish Joyi (Start)</h5>
+              <p><strong>Vaqt:</strong> ${timeStr}</p>
+              <p><strong>Joy:</strong> ${pt.district || 'Bandixon tumani'}</p>
+            </div>
+          `);
+          routeLayerRef.current.addLayer(startMarker);
+        } else if (index === routePoints.length - 1) {
+          // End Marker (Red Pin)
+          const endMarker = L.circleMarker([pt.latitude, pt.longitude], {
+            radius: 10,
+            fillColor: '#ef4444',
+            color: '#ffffff',
+            weight: 3,
+            fillOpacity: 1,
+          }).bindPopup(`
+            <div class="p-1 text-xs">
+              <h5 class="font-bold text-rose-700">🏁 Oxirgi Joylashuv (Finish)</h5>
+              <p><strong>Vaqt:</strong> ${timeStr}</p>
+              <p><strong>Joy:</strong> ${pt.district || 'Bandixon tumani'}</p>
+            </div>
+          `);
+          routeLayerRef.current.addLayer(endMarker);
+        } else {
+          // Waypoint Dot Marker (Blue Circle with sequence number)
+          const wayIcon = L.divIcon({
+            className: 'custom-waypoint-marker',
+            html: `
+              <div class="w-6 h-6 rounded-full bg-sky-600 border-2 border-white shadow-md flex items-center justify-center font-bold text-[10px] text-white">
+                ${index + 1}
+              </div>
+            `,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+          });
+
+          const wayMarker = L.marker([pt.latitude, pt.longitude], { icon: wayIcon }).bindPopup(`
+            <div class="p-1 text-xs text-slate-800">
+              <h5 class="font-bold text-sky-700">📍 Harakat Nuqtasi / Burilish #${index + 1}</h5>
+              <p><strong>Vaqt:</strong> ${timeStr}</p>
+              <p><strong>Ko‘cha / Tuman:</strong> ${pt.district || 'Bandixon tumani'}</p>
+              <p><strong>Tezlik:</strong> ${speedStr}</p>
+              <p class="text-[10px] text-slate-400 font-mono mt-1">GPS: ${pt.latitude.toFixed(5)}, ${pt.longitude.toFixed(5)}</p>
+            </div>
+          `);
+          routeLayerRef.current.addLayer(wayMarker);
+        }
+      });
 
       if (coords.length > 0) {
         const bounds = L.latLngBounds(coords);
