@@ -16,9 +16,9 @@ export default function GeofencesPage() {
   const [geofences, setGeofences] = useState<Geofence[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    name: 'Bandixon Tuman Hokimligi',
-    latitude: 37.5255,
-    longitude: 67.2458,
+    name: "Bandixon tuman O'simliklar karantini va himoyasi bo'limi",
+    latitude: 37.842429,
+    longitude: 67.377811,
     radius: 500,
   });
 
@@ -117,7 +117,7 @@ export default function GeofencesPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Masalan: Bandixon Tuman Hokimligi"
+                  placeholder="Masalan: Bandixon tuman O'simliklar karantini va himoyasi bo'limi"
                   className="w-full p-2 border border-slate-200 rounded-md"
                 />
               </div>

@@ -67,7 +67,7 @@ export function Sidebar() {
       {/* Footer Info */}
       <div className="p-4 border-t border-slate-800 text-xs text-slate-400">
         <p className="font-semibold text-slate-300">Surxondaryo viloyati</p>
-        <p>Bandixon tumani hokimligi</p>
+        <p className="text-[11px] text-sky-400 font-medium">Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi</p>
         <p className="mt-2 text-[10px] text-slate-500">v1.0.0 Production MVP</p>
       </div>
     </aside>

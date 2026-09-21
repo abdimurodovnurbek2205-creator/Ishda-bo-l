@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   XCircle,
   Radio,
+  Bell,
 } from 'lucide-react';
 import { EmployeeLiveSummary } from '@repo/types';
 import Link from 'next/link';
@@ -291,20 +292,16 @@ export default function DashboardPage() {
               {/* Recent Alerts Card */}
               <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
                 <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-500" />
+                  <Bell className="w-4 h-4 text-sky-600" />
                   Oxirgi Bildirishnomalar
                 </h3>
                 <div className="space-y-2 text-xs">
-                  <div className="p-2.5 rounded-lg bg-sky-50 border border-sky-100 text-sky-900">
-                    <p className="font-semibold">Ali Valiyev</p>
-                    <p className="text-[11px] text-sky-700">Bandixon tumani → Qumqo‘rg‘on tumaniga o‘tdi</p>
-                    <span className="text-[10px] text-sky-500">10 daqiqa avval</span>
-                  </div>
-
-                  <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-900">
-                    <p className="font-semibold">Bandixon Tuman Hokimligi</p>
-                    <p className="text-[11px] text-emerald-700">Bekzod Karimov geozonaga kirdi</p>
-                    <span className="text-[10px] text-emerald-500">25 daqiqa avval</span>
+                  <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-500 text-center space-y-1">
+                    <Bell className="w-5 h-5 mx-auto text-slate-400" />
+                    <p className="font-semibold text-slate-700">Tizimda yangi bildirishnoma yo‘q</p>
+                    <p className="text-[11px] text-slate-400">
+                      Geozonaga kirish/chiqish va tuman almashtirish hodisalari bu yerda real-vaqtda ko‘rinadi.
+                    </p>
                   </div>
                 </div>
               </div>
