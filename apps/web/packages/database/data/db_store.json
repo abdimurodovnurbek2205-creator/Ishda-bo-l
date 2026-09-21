@@ -187,8 +187,117 @@
       "updatedAt": "2026-09-21T09:00:00.000Z"
     }
   ],
-  "workSessions": [],
-  "locations": [],
+  "workSessions": [
+    {
+      "id": "ws-adham-1",
+      "employeeId": "emp-adham",
+      "startedAt": "2026-09-21T03:00:00.000Z",
+      "startLatitude": 37.842429,
+      "startLongitude": 67.377811,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ws-nurbek-1",
+      "employeeId": "emp-nurbek",
+      "startedAt": "2026-09-21T03:30:00.000Z",
+      "startLatitude": 37.842429,
+      "startLongitude": 67.377811,
+      "status": "ACTIVE"
+    }
+  ],
+  "locations": [
+    {
+      "id": "loc-adh-1",
+      "employeeId": "emp-adham",
+      "latitude": 37.842429,
+      "longitude": 67.377811,
+      "accuracy": 4.5,
+      "speed": 0,
+      "heading": 0,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani",
+      "timestamp": "2026-09-21T03:00:00.000Z",
+      "createdAt": "2026-09-21T03:00:00.000Z"
+    },
+    {
+      "id": "loc-adh-2",
+      "employeeId": "emp-adham",
+      "latitude": 37.8475,
+      "longitude": 67.3825,
+      "accuracy": 5,
+      "speed": 25,
+      "heading": 45,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani",
+      "timestamp": "2026-09-21T04:15:00.000Z",
+      "createdAt": "2026-09-21T04:15:00.000Z"
+    },
+    {
+      "id": "loc-adh-3",
+      "employeeId": "emp-adham",
+      "latitude": 37.852,
+      "longitude": 67.391,
+      "accuracy": 6,
+      "speed": 35,
+      "heading": 60,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani",
+      "timestamp": "2026-09-21T05:05:00.000Z",
+      "createdAt": "2026-09-21T05:05:00.000Z"
+    },
+    {
+      "id": "loc-adh-4",
+      "employeeId": "emp-adham",
+      "latitude": 37.849,
+      "longitude": 67.386,
+      "accuracy": 4,
+      "speed": 10,
+      "heading": 220,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani",
+      "timestamp": "2026-09-21T05:25:00.000Z",
+      "createdAt": "2026-09-21T05:25:00.000Z"
+    },
+    {
+      "id": "loc-nur-1",
+      "employeeId": "emp-nurbek",
+      "latitude": 37.842429,
+      "longitude": 67.377811,
+      "accuracy": 5,
+      "speed": 0,
+      "heading": 0,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani",
+      "timestamp": "2026-09-21T03:30:00.000Z",
+      "createdAt": "2026-09-21T03:30:00.000Z"
+    },
+    {
+      "id": "loc-nur-2",
+      "employeeId": "emp-nurbek",
+      "latitude": 37.838,
+      "longitude": 67.371,
+      "accuracy": 7,
+      "speed": 40,
+      "heading": 180,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani",
+      "timestamp": "2026-09-21T04:45:00.000Z",
+      "createdAt": "2026-09-21T04:45:00.000Z"
+    },
+    {
+      "id": "loc-nur-3",
+      "employeeId": "emp-nurbek",
+      "latitude": 37.834,
+      "longitude": 67.364,
+      "accuracy": 4.8,
+      "speed": 15,
+      "heading": 210,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani",
+      "timestamp": "2026-09-21T05:20:00.000Z",
+      "createdAt": "2026-09-21T05:20:00.000Z"
+    }
+  ],
   "geofences": [
     {
       "id": "gf-1",
