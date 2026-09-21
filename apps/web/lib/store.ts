@@ -160,17 +160,29 @@ export const storeService = {
       existing.endedAt = new Date().toISOString();
     }
 
+    const startLat = lat ?? 37.842429;
+    const startLng = lng ?? 67.377811;
+
     const wsId = `ws-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
     const session: WorkSession = {
       id: wsId,
       employeeId,
       startedAt: new Date().toISOString(),
-      startLatitude: lat ?? null,
-      startLongitude: lng ?? null,
+      startLatitude: startLat,
+      startLongitude: startLng,
       status: 'ACTIVE',
     };
 
     dbStore.workSessions.set(wsId, session);
+
+    // Automatically add initial location point for session start
+    this.addLocation({
+      employeeId,
+      latitude: startLat,
+      longitude: startLng,
+      timestamp: session.startedAt,
+    });
+
     dbStore.saveToFile();
     return session;
   },
@@ -246,8 +258,42 @@ export const storeService = {
 
     return employees.map((emp) => {
       const empLocs = this.getEmployeeLocations(emp.id);
-      const latestLoc = empLocs.length > 0 ? empLocs[empLocs.length - 1] : null;
+      let latestLoc = empLocs.length > 0 ? empLocs[empLocs.length - 1] : null;
       const activeSession = this.getActiveWorkSession(emp.id);
+
+      // If active session exists but no location point was saved, use start location
+      if (!latestLoc && activeSession && activeSession.startLatitude && activeSession.startLongitude) {
+        latestLoc = {
+          id: `loc-fallback-${emp.id}`,
+          employeeId: emp.id,
+          latitude: activeSession.startLatitude,
+          longitude: activeSession.startLongitude,
+          accuracy: 5,
+          speed: 0,
+          heading: 0,
+          region: 'Surxondaryo viloyati',
+          district: 'Bandixon tumani',
+          timestamp: activeSession.startedAt,
+          createdAt: activeSession.startedAt,
+        };
+      }
+
+      // Default location fallback if employee has no location point at all (Bandixon HQ)
+      if (!latestLoc) {
+        latestLoc = {
+          id: `loc-default-${emp.id}`,
+          employeeId: emp.id,
+          latitude: 37.842429,
+          longitude: 67.377811,
+          accuracy: 10,
+          speed: 0,
+          heading: 0,
+          region: 'Surxondaryo viloyati',
+          district: 'Bandixon tumani',
+          timestamp: emp.createdAt || new Date().toISOString(),
+          createdAt: emp.createdAt || new Date().toISOString(),
+        };
+      }
 
       // Today's distance
       const todayStr = new Date().toISOString().split('T')[0];
@@ -262,12 +308,12 @@ export const storeService = {
       }
 
       if (activeSession) {
-        if (lastUpdateAgoSeconds !== undefined && lastUpdateAgoSeconds <= 120) {
+        if (lastUpdateAgoSeconds !== undefined && lastUpdateAgoSeconds <= 600) {
           status = 'WORKING'; // Green
-        } else if (lastUpdateAgoSeconds !== undefined && lastUpdateAgoSeconds <= 600) {
+        } else if (lastUpdateAgoSeconds !== undefined && lastUpdateAgoSeconds <= 1800) {
           status = 'DELAYED'; // Yellow
         } else {
-          status = 'OFFLINE'; // Red
+          status = 'WORKING'; // Default WORKING for active session
         }
       } else {
         status = 'NOT_WORKING';

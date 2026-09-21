@@ -338,34 +338,48 @@ class MemoryDatabase {
     };
     this.geofences.set(gf1.id, gf1);
 
-    // Seed Active Work Session & Locations ONLY for Yusupov Abdunazar (emp-yusupov)
-    const wsYusupov: WorkSession = {
-      id: 'ws-yusupov-1',
-      employeeId: 'emp-yusupov',
-      startedAt: new Date(Date.now() - 3600 * 1000 * 2).toISOString(),
-      startLatitude: 37.842429,
-      startLongitude: 67.377811,
-      status: 'ACTIVE',
-    };
-    this.workSessions.set(wsYusupov.id, wsYusupov);
-
+    // Seed Active Work Sessions & Locations for Field Staff in Bandixon Tumani
     const nowIso = new Date().toISOString();
     const todayStr = nowIso.split('T')[0];
 
-    this.locations.push(
-      {
-        id: 'loc-yus-1',
-        employeeId: 'emp-yusupov',
-        latitude: 37.842429,
-        longitude: 67.377811,
+    const activeEmpList = [
+      { id: 'emp-yusupov', lat: 37.842429, lng: 67.377811, offsetMin: 120 },
+      { id: 'emp-adham', lat: 37.843200, lng: 67.378500, offsetMin: 90 },
+      { id: 'emp-nurbek', lat: 37.845100, lng: 67.380200, offsetMin: 75 },
+      { id: 'emp-sirojiddin', lat: 37.841000, lng: 67.375400, offsetMin: 60 },
+      { id: 'emp-boboqulov', lat: 37.839800, lng: 67.374000, offsetMin: 45 },
+      { id: 'emp-yuldashev', lat: 37.846000, lng: 67.382000, offsetMin: 30 },
+      { id: 'emp-orozov', lat: 37.844000, lng: 67.379000, offsetMin: 15 },
+    ];
+
+    activeEmpList.forEach((item) => {
+      const ws: WorkSession = {
+        id: `ws-${item.id}-1`,
+        employeeId: item.id,
+        startedAt: new Date(Date.now() - item.offsetMin * 60 * 1000).toISOString(),
+        startLatitude: item.lat,
+        startLongitude: item.lng,
+        status: 'ACTIVE',
+      };
+      this.workSessions.set(ws.id, ws);
+
+      this.locations.push({
+        id: `loc-${item.id}-init`,
+        employeeId: item.id,
+        latitude: item.lat,
+        longitude: item.lng,
         accuracy: 4.5,
         speed: 0,
         heading: 0,
         region: 'Surxondaryo viloyati',
         district: 'Bandixon tumani',
-        timestamp: `${todayStr}T08:00:00.000Z`,
-        createdAt: `${todayStr}T08:00:00.000Z`,
-      },
+        timestamp: ws.startedAt,
+        createdAt: ws.startedAt,
+      });
+    });
+
+    // Additional route history points for Yusupov Abdunazar (emp-yusupov)
+    this.locations.push(
       {
         id: 'loc-yus-2',
         employeeId: 'emp-yusupov',

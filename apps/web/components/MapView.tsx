@@ -186,6 +186,19 @@ export default function MapView({
     renderMarkers();
   }, [employees, selectedEmployeeId, onSelectEmployee]);
 
+  // Auto-fly map view to selected employee location
+  useEffect(() => {
+    if (!mapInstanceRef.current || !selectedEmployeeId) return;
+    const target = employees.find((e) => e.employeeId === selectedEmployeeId);
+    if (target && target.latestLocation) {
+      mapInstanceRef.current.flyTo(
+        [target.latestLocation.latitude, target.latestLocation.longitude],
+        15,
+        { animate: true, duration: 1 }
+      );
+    }
+  }, [selectedEmployeeId, employees]);
+
   // Render Polyline Route when routePoints are provided
   useEffect(() => {
     if (!mapInstanceRef.current || !routeLayerRef.current) return;
