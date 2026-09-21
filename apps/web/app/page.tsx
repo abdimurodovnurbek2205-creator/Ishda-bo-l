@@ -18,10 +18,37 @@ import {
 } from 'lucide-react';
 import { EmployeeLiveSummary } from '@repo/types';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { EmployeeDashboardView } from '@/components/EmployeeDashboardView';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [employees, setEmployees] = useState<EmployeeLiveSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentEmployee, setCurrentEmployee] = useState<any>(null);
+
+  const fetchAuth = async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        router.push('/login');
+        return;
+      }
+      setCurrentUser(data.user);
+      setCurrentEmployee(data.employee);
+    } catch (e) {
+      router.push('/login');
+    }
+  };
 
   const fetchSummary = async () => {
     try {
@@ -38,12 +65,17 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    fetchAuth();
     fetchSummary();
     const interval = setInterval(fetchSummary, 5000);
     return () => clearInterval(interval);
   }, []);
 
   const [selectedDepartment, setSelectedDepartment] = useState<string>('ALL');
+
+  if (currentUser && currentUser.role === 'EMPLOYEE') {
+    return <EmployeeDashboardView user={currentUser} employee={currentEmployee} />;
+  }
 
   const departmentsList = Array.from(new Set(employees.map((e) => e.department).filter(Boolean)));
 

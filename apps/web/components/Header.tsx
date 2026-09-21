@@ -28,17 +28,18 @@ export function Header({ title = 'Bosh sahifa' }: HeaderProps) {
 
         {/* User profile info */}
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
-          <div className="w-8 h-8 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-xs border border-sky-200">
-            SH
+          <div className="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-xs border border-sky-700">
+            BS
           </div>
           <div className="hidden sm:block text-left">
-            <p className="text-xs font-semibold text-slate-800 leading-none">Sherzod Hakimov</p>
-            <p className="text-[10px] text-slate-500">Tuman Rahbari / Administrator</p>
+            <p className="text-xs font-semibold text-slate-800 leading-none">Bo‘riyev Shuxrat Xursandovich</p>
+            <p className="text-[10px] text-sky-600 font-medium">Bo‘lim boshlig‘i (Kuzatuvchi)</p>
           </div>
           <Link
             href="/login"
+            onClick={() => localStorage.removeItem('auth_token')}
             className="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-slate-100 transition-colors"
-            title="Chiqish"
+            title="Tizimdan Chiqish"
           >
             <LogOut className="w-4 h-4" />
           </Link>
