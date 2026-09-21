@@ -6,8 +6,8 @@ import { Shield, Lock, Mail, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [identifier, setIdentifier] = useState('+998993361988');
-  const [password, setPassword] = useState('shuxrat2026');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -47,6 +47,7 @@ export default function LoginPage() {
           </div>
           <h2 className="text-xl font-bold">BANDIXON MONITORING</h2>
           <p className="text-xs text-sky-100 mt-1">Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi</p>
+          <p className="text-[11px] text-sky-200 mt-0.5 font-medium">Bo‘lim boshlig‘i va Xodimlar uchun yagona kirish</p>
         </div>
 
         {/* Form */}
@@ -58,7 +59,7 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Telefon Raqam / Login</label>
+            <label className="block font-bold text-slate-700 mb-1">Telefon Raqamingiz (yoki Login)</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
@@ -66,14 +67,14 @@ export default function LoginPage() {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="+998993361988"
+                placeholder="+998901234567"
                 className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Parol</label>
+            <label className="block font-bold text-slate-700 mb-1">Parolingiz</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
@@ -81,6 +82,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="******"
                 className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
               />
             </div>
@@ -95,11 +97,9 @@ export default function LoginPage() {
             <ArrowRight className="w-4 h-4" />
           </button>
 
-          <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-500 space-y-1">
-            <p className="font-semibold text-slate-700">Bo‘lim boshlig‘i (Boshqaruv paneli):</p>
-            <p>Bo‘lim boshlig‘i: <code className="text-sky-700 font-semibold">Bo‘riyev Shuxrat Xursandovich</code></p>
-            <p>Telefon / Login: <code className="text-sky-700 font-mono">+998993361988</code></p>
-            <p>Parol: <code className="font-mono text-slate-800 font-bold">shuxrat2026</code></p>
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-500 space-y-1 text-center">
+            <p className="font-semibold text-slate-700">Tizimga Kirish Qo‘llanmasi</p>
+            <p>Bo‘lim boshlig‘i hamda barcha xodimlar o‘zlariga ajratilgan Telefon raqami va Parol orqali ushbu yagona oyna orqali kiradilar.</p>
           </div>
         </form>
       </div>
