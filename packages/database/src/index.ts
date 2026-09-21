@@ -338,24 +338,24 @@ class MemoryDatabase {
     };
     this.geofences.set(gf1.id, gf1);
 
-    // Seed Active Work Session & Locations for Abdurazzoqov Adham (emp-adham)
-    const wsAdham: WorkSession = {
-      id: 'ws-adham-1',
-      employeeId: 'emp-adham',
-      startedAt: new Date(Date.now() - 3600 * 1000 * 3).toISOString(),
+    // Seed Active Work Session & Locations ONLY for Yusupov Abdunazar (emp-yusupov)
+    const wsYusupov: WorkSession = {
+      id: 'ws-yusupov-1',
+      employeeId: 'emp-yusupov',
+      startedAt: new Date(Date.now() - 3600 * 1000 * 2).toISOString(),
       startLatitude: 37.842429,
       startLongitude: 67.377811,
       status: 'ACTIVE',
     };
-    this.workSessions.set(wsAdham.id, wsAdham);
+    this.workSessions.set(wsYusupov.id, wsYusupov);
 
-    const now = Date.now();
-    const todayStr = new Date().toISOString().split('T')[0];
+    const nowIso = new Date().toISOString();
+    const todayStr = nowIso.split('T')[0];
 
     this.locations.push(
       {
-        id: 'loc-adh-1',
-        employeeId: 'emp-adham',
+        id: 'loc-yus-1',
+        employeeId: 'emp-yusupov',
         latitude: 37.842429,
         longitude: 67.377811,
         accuracy: 4.5,
@@ -367,8 +367,8 @@ class MemoryDatabase {
         createdAt: `${todayStr}T08:00:00.000Z`,
       },
       {
-        id: 'loc-adh-2',
-        employeeId: 'emp-adham',
+        id: 'loc-yus-2',
+        employeeId: 'emp-yusupov',
         latitude: 37.847500,
         longitude: 67.382500,
         accuracy: 5.0,
@@ -380,8 +380,8 @@ class MemoryDatabase {
         createdAt: `${todayStr}T09:15:00.000Z`,
       },
       {
-        id: 'loc-adh-3',
-        employeeId: 'emp-adham',
+        id: 'loc-yus-3',
+        employeeId: 'emp-yusupov',
         latitude: 37.852000,
         longitude: 67.391000,
         accuracy: 6.0,
@@ -393,8 +393,8 @@ class MemoryDatabase {
         createdAt: `${todayStr}T10:05:00.000Z`,
       },
       {
-        id: 'loc-adh-4',
-        employeeId: 'emp-adham',
+        id: 'loc-yus-4',
+        employeeId: 'emp-yusupov',
         latitude: 37.849000,
         longitude: 67.386000,
         accuracy: 4.0,
@@ -402,61 +402,8 @@ class MemoryDatabase {
         heading: 220,
         region: 'Surxondaryo viloyati',
         district: 'Bandixon tumani',
-        timestamp: `${todayStr}T10:25:00.000Z`,
-        createdAt: `${todayStr}T10:25:00.000Z`,
-      }
-    );
-
-    // Seed Active Work Session & Locations for Abdimurodov Nurbek (emp-nurbek)
-    const wsNurbek: WorkSession = {
-      id: 'ws-nurbek-1',
-      employeeId: 'emp-nurbek',
-      startedAt: new Date(Date.now() - 3600 * 1000 * 2.5).toISOString(),
-      startLatitude: 37.842429,
-      startLongitude: 67.377811,
-      status: 'ACTIVE',
-    };
-    this.workSessions.set(wsNurbek.id, wsNurbek);
-
-    this.locations.push(
-      {
-        id: 'loc-nur-1',
-        employeeId: 'emp-nurbek',
-        latitude: 37.842429,
-        longitude: 67.377811,
-        accuracy: 5.0,
-        speed: 0,
-        heading: 0,
-        region: 'Surxondaryo viloyati',
-        district: 'Bandixon tumani',
-        timestamp: `${todayStr}T08:30:00.000Z`,
-        createdAt: `${todayStr}T08:30:00.000Z`,
-      },
-      {
-        id: 'loc-nur-2',
-        employeeId: 'emp-nurbek',
-        latitude: 37.838000,
-        longitude: 67.371000,
-        accuracy: 7.0,
-        speed: 40,
-        heading: 180,
-        region: 'Surxondaryo viloyati',
-        district: 'Bandixon tumani',
-        timestamp: `${todayStr}T09:45:00.000Z`,
-        createdAt: `${todayStr}T09:45:00.000Z`,
-      },
-      {
-        id: 'loc-nur-3',
-        employeeId: 'emp-nurbek',
-        latitude: 37.834000,
-        longitude: 67.364000,
-        accuracy: 4.8,
-        speed: 15,
-        heading: 210,
-        region: 'Surxondaryo viloyati',
-        district: 'Bandixon tumani',
-        timestamp: `${todayStr}T10:20:00.000Z`,
-        createdAt: `${todayStr}T10:20:00.000Z`,
+        timestamp: nowIso,
+        createdAt: nowIso,
       }
     );
   }

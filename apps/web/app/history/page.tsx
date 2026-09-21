@@ -19,7 +19,7 @@ const MapView = dynamic(() => import('@/components/MapView'), {
 
 function LocationHistoryContent() {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [selectedEmpId, setSelectedEmpId] = useState<string>('emp-adham');
+  const [selectedEmpId, setSelectedEmpId] = useState<string>('emp-yusupov');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [historyData, setHistoryData] = useState<{
     employeeName: string;
@@ -43,9 +43,9 @@ function LocationHistoryContent() {
           if (queryEmpId) {
             setSelectedEmpId(queryEmpId);
           } else {
-            const firstFieldEmp = data.find((e: Employee) => e.isTrackingEnabled);
-            if (firstFieldEmp) {
-              setSelectedEmpId(firstFieldEmp.id);
+            const activeEmp = data.find((e: Employee) => e.id === 'emp-yusupov') || data.find((e: Employee) => e.isTrackingEnabled);
+            if (activeEmp) {
+              setSelectedEmpId(activeEmp.id);
             }
           }
         }
