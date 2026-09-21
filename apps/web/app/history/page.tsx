@@ -56,7 +56,10 @@ function LocationHistoryContent() {
     if (!selectedEmpId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/location/history?employeeId=${selectedEmpId}&date=${selectedDate}`);
+      const res = await fetch(`/api/location/history?employeeId=${selectedEmpId}&date=${selectedDate}&t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+      });
       const data = await res.json();
       setHistoryData(data);
     } catch (e) {
