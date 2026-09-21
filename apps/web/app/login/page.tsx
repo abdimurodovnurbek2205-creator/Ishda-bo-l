@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Lock, Mail, ArrowRight } from 'lucide-react';
 
@@ -10,6 +10,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Force clear state after mount to clear any browser autofill injections
+    const t = setTimeout(() => {
+      setIdentifier('');
+      setPassword('');
+    }, 150);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +60,10 @@ export default function LoginPage() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} autoComplete="off" className="p-6 space-y-4 text-xs">
+          {/* Dummy hidden inputs to trap browser autofill */}
+          <input type="text" name="prevent_autofill_user" style={{ display: 'none' }} tabIndex={-1} />
+          <input type="password" name="prevent_autofill_pass" style={{ display: 'none' }} tabIndex={-1} />
+
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 font-semibold text-center">
               {error}
