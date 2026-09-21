@@ -6,8 +6,8 @@ import { Shield, Lock, Mail, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@bandixon.gov.uz');
-  const [password, setPassword] = useState('admin123');
+  const [identifier, setIdentifier] = useState('+998901234567');
+  const [password, setPassword] = useState('shuxrat123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +20,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
       });
 
       const data = await res.json();
@@ -46,7 +46,7 @@ export default function LoginPage() {
             <Shield className="w-7 h-7 text-white" />
           </div>
           <h2 className="text-xl font-bold">BANDIXON MONITORING</h2>
-          <p className="text-xs text-sky-100 mt-1">Surxondaryo viloyati | Tuman Hokimligi GPS Tizimi</p>
+          <p className="text-xs text-sky-100 mt-1">Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi</p>
         </div>
 
         {/* Form */}
@@ -58,14 +58,15 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Email / Login</label>
+            <label className="block font-bold text-slate-700 mb-1">Telefon Raqam / Login</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
-                type="email"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="+998901234567 yoki login"
                 className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
               />
             </div>
@@ -95,9 +96,10 @@ export default function LoginPage() {
           </button>
 
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-500 space-y-1">
-            <p className="font-semibold text-slate-700">Demonsratal Loginlar:</p>
-            <p>Admin: <code className="text-sky-700 font-mono">admin@bandixon.gov.uz</code> / <code className="font-mono">admin123</code></p>
-            <p>Xodim: <code className="text-sky-700 font-mono">ali@bandixon.gov.uz</code> / <code className="font-mono">emp123</code></p>
+            <p className="font-semibold text-slate-700">Bo‘lim boshlig‘i (Boshqaruv paneli):</p>
+            <p>Bo‘lim boshlig‘i: <code className="text-sky-700 font-semibold">Bo‘riyev Shuxrat</code></p>
+            <p>Login: <code className="text-sky-700 font-mono">+998901234567</code> / <code className="font-mono">boriyev@bandixon.gov.uz</code></p>
+            <p>Parol: <code className="font-mono text-slate-800 font-bold">shuxrat123</code></p>
           </div>
         </form>
       </div>

@@ -32,12 +32,12 @@ describe('Authentication & Security Utilities', () => {
   });
 
   it('should find user by phone number or email', () => {
-    const userByPhone = storeService.getUserByPhoneOrEmail('+998912345678');
+    const userByPhone = storeService.getUserByPhoneOrEmail('+998901234567');
     expect(userByPhone).not.toBeNull();
-    expect(userByPhone?.name).toBe('Ali Valiyev');
+    expect(userByPhone?.name).toBe('Bo‘riyev Shuxrat');
 
-    const userByDigits = storeService.getUserByPhoneOrEmail('912345678');
+    const userByDigits = storeService.getUserByPhoneOrEmail('901234567');
     expect(userByDigits).not.toBeNull();
-    expect(userByDigits?.email).toBe('ali@bandixon.gov.uz');
+    expect(userByDigits?.email).toBe('boriyev@bandixon.gov.uz');
   });
 });

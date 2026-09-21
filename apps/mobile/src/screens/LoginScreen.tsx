@@ -22,10 +22,10 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
   // Form Fields
   const [name, setName] = useState('');
-  const [phoneOrEmail, setPhoneOrEmail] = useState('+998912345678');
-  const [password, setPassword] = useState('emp123');
-  const [department, setDepartment] = useState('Monitoring Bo‘limi');
-  const [position, setPosition] = useState('Mutaxassis');
+  const [phoneOrEmail, setPhoneOrEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [department, setDepartment] = useState("Bandixon tuman O'simliklar karantini va himoyasi bo'limi");
+  const [position, setPosition] = useState('Inspektor');
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -42,7 +42,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const handleLogin = async () => {
     setErrorMessage('');
     if (!phoneOrEmail || !password) {
-      showAlert('Xatolik', 'Telefon raqami (yoki email) hamda parol kiriting');
+      showAlert('Xatolik', 'Telefon raqamingiz hamda parolingizni kiriting');
       return;
     }
 
@@ -121,7 +121,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       <View style={styles.card}>
         <View style={styles.header}>
           <Text style={styles.title}>BANDIXON MONITORING</Text>
-          <Text style={styles.subtitle}>Xodimlarni Nazorat Qilish Platformasi</Text>
+          <Text style={styles.subtitle}>Bandixon tuman O'simliklar karantini va himoyasi bo'limi</Text>
         </View>
 
         {/* Tab Switcher */}
@@ -133,16 +133,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               setErrorMessage('');
             }}
           >
-            <Text style={[styles.tabText, !isRegisterMode && styles.tabTextActive]}>Kirish</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabButton, isRegisterMode && styles.tabButtonActive]}
-            onPress={() => {
-              setIsRegisterMode(true);
-              setErrorMessage('');
-            }}
-          >
-            <Text style={[styles.tabText, isRegisterMode && styles.tabTextActive]}>Ro‘yxatdan O‘tish</Text>
+            <Text style={[styles.tabText, !isRegisterMode && styles.tabTextActive]}>Tizimga Kirish</Text>
           </TouchableOpacity>
         </View>
 
@@ -160,12 +151,12 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                 style={styles.input}
                 value={name}
                 onChangeText={setName}
-                placeholder="Jasur Rahimov"
+                placeholder="Ism Familiya"
               />
             </>
           )}
 
-          <Text style={styles.label}>Telefon Raqam (yoki Email)</Text>
+          <Text style={styles.label}>Telefon Raqamingiz</Text>
           <TextInput
             style={styles.input}
             value={phoneOrEmail}
@@ -175,7 +166,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             }}
             autoCapitalize="none"
             keyboardType="phone-pad"
-            placeholder="+998901234567 yoki ali@bandixon.gov.uz"
+            placeholder="+998901234567"
           />
 
           {isRegisterMode && (
@@ -185,7 +176,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                 style={styles.input}
                 value={department}
                 onChangeText={setDepartment}
-                placeholder="Nazorat va Monitoring"
+                placeholder="Bo'lim nomi"
               />
 
               <Text style={styles.label}>Lavozim</Text>
@@ -198,7 +189,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             </>
           )}
 
-          <Text style={styles.label}>Parol</Text>
+          <Text style={styles.label}>Parolingiz</Text>
           <TextInput
             style={styles.input}
             value={password}
@@ -227,9 +218,8 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
           {!isRegisterMode && (
             <View style={styles.hintBox}>
-              <Text style={styles.hintTitle}>Sinov Accounti:</Text>
-              <Text style={styles.hintText}>Telefon / Login: ali@bandixon.gov.uz yoki +998912345678</Text>
-              <Text style={styles.hintText}>Parol: emp123</Text>
+              <Text style={styles.hintTitle}>Eslatma:</Text>
+              <Text style={styles.hintText}>Ilovadan foydalanish uchun Bo'lim boshlig'i Bo'riyev Shuxrat tomonidan sizga biriktirilgan Telefon raqam va Parol orqali kiring.</Text>
             </View>
           )}
         </View>
