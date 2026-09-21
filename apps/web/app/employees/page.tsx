@@ -139,7 +139,7 @@ export default function EmployeesPage() {
                     <th className="p-3">Bo‘lim & Lavozim</th>
                     <th className="p-3">Telefon & Email</th>
                     <th className="p-3">Ish Vaqti Rejimi</th>
-                    <th className="p-3">GPS Tracking</th>
+                    <th className="p-3">GPS Nazorati Ruxsati</th>
                     <th className="p-3 text-right">Amallar</th>
                   </tr>
                 </thead>
@@ -172,9 +172,10 @@ export default function EmployeesPage() {
                               ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
                               : 'bg-rose-100 text-rose-800 hover:bg-rose-200'
                           }`}
+                          title="Bo'lim boshlig'i ushbu xodim uchun GPS kuzatuv ruxsatini yoqishi yoki o'chirishi mumkin"
                         >
                           <Power className="w-3 h-3" />
-                          {emp.isTrackingEnabled ? 'Yoqilgan' : 'O‘chirilgan'}
+                          {emp.isTrackingEnabled ? 'Ruxsat Yoqilgan' : 'Ruxsat O‘chirilgan'}
                         </button>
                       </td>
                       <td className="p-3 text-right space-x-2">
