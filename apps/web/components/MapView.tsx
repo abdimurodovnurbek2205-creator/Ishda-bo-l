@@ -186,16 +186,28 @@ export default function MapView({
     renderMarkers();
   }, [employees, selectedEmployeeId, onSelectEmployee]);
 
-  // Auto-fly map view to selected employee location
+  const prevSelectedEmpIdRef = useRef<string | null>(null);
+  const hasFittedRouteRef = useRef<boolean>(false);
+
+  // Reset route fit state when routePoints change
+  useEffect(() => {
+    hasFittedRouteRef.current = false;
+  }, [routePoints]);
+
+  // Auto-fly map view ONLY when selectedEmployeeId changes to a new employee ID
   useEffect(() => {
     if (!mapInstanceRef.current || !selectedEmployeeId) return;
-    const target = employees.find((e) => e.employeeId === selectedEmployeeId);
-    if (target && target.latestLocation) {
-      mapInstanceRef.current.flyTo(
-        [target.latestLocation.latitude, target.latestLocation.longitude],
-        15,
-        { animate: true, duration: 1 }
-      );
+
+    if (prevSelectedEmpIdRef.current !== selectedEmployeeId) {
+      prevSelectedEmpIdRef.current = selectedEmployeeId;
+      const target = employees.find((e) => e.employeeId === selectedEmployeeId);
+      if (target && target.latestLocation) {
+        mapInstanceRef.current.flyTo(
+          [target.latestLocation.latitude, target.latestLocation.longitude],
+          16,
+          { animate: true, duration: 1 }
+        );
+      }
     }
   }, [selectedEmployeeId, employees]);
 
@@ -288,7 +300,9 @@ export default function MapView({
         }
       });
 
-      if (coords.length > 0) {
+      // Fit bounds ONLY ONCE when a new route is loaded
+      if (coords.length > 0 && !hasFittedRouteRef.current) {
+        hasFittedRouteRef.current = true;
         const bounds = L.latLngBounds(coords);
         mapInstanceRef.current.fitBounds(bounds, { padding: [40, 40] });
       }
