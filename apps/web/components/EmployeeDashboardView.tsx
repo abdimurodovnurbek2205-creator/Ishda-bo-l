@@ -25,7 +25,22 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
       if (data.session) {
         setActiveSession(data.session);
       } else {
-        setActiveSession(null);
+        // Auto-start active session upon loading employee portal if no session active today
+        const startRes = await fetch('/api/work-sessions/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            employeeId: employee.id,
+            latitude: currentCoords?.lat || 37.842429,
+            longitude: currentCoords?.lng || 67.377811,
+          }),
+        });
+        const startData = await startRes.json();
+        if (startRes.ok) {
+          setActiveSession(startData.session);
+        } else {
+          setActiveSession(null);
+        }
       }
     } catch (e) {
       console.error(e);

@@ -30,6 +30,14 @@ export async function POST(request: Request) {
     const employee = storeService.getEmployeeByUserId(user.id);
     const token = generateToken({ userId: user.id, role: user.role, email: user.email });
 
+    // Automatically start active work session upon login for field employees if none active
+    if (user.role === 'EMPLOYEE' && employee) {
+      const activeSession = storeService.getActiveWorkSession(employee.id);
+      if (!activeSession) {
+        storeService.startWorkSession(employee.id, 37.842429, 67.377811);
+      }
+    }
+
     return jsonWithCors({
       success: true,
       token,
