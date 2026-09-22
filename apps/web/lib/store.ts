@@ -308,10 +308,22 @@ export const storeService = {
       }
 
       if (activeSession) {
-        if (lastUpdateAgoSeconds !== undefined && lastUpdateAgoSeconds > 1800) {
-          status = 'DELAYED'; // Yellow: Active session ongoing, internet signal paused
+        // Evaluate last update time against session start time or recent location point during session
+        const sessionStartTime = new Date(activeSession.startedAt).getTime();
+        const sessionLocs = empLocs.filter((l) => new Date(l.timestamp).getTime() >= sessionStartTime - 60000);
+        const sessionLatestLoc = sessionLocs.length > 0 ? sessionLocs[sessionLocs.length - 1] : null;
+
+        const effectiveTimestamp = sessionLatestLoc ? sessionLatestLoc.timestamp : activeSession.startedAt;
+        lastUpdateAgoSeconds = Math.round((now - new Date(effectiveTimestamp).getTime()) / 1000);
+
+        if (lastUpdateAgoSeconds <= 3600) {
+          status = 'WORKING'; // Green: Active ongoing work session today
         } else {
-          status = 'WORKING'; // Green: Active ongoing work session
+          status = 'DELAYED'; // Yellow: Active session, but no update for over 1 hour
+        }
+
+        if (sessionLatestLoc) {
+          latestLoc = sessionLatestLoc;
         }
       } else {
         status = 'NOT_WORKING'; // Gray: Session ended or not started
