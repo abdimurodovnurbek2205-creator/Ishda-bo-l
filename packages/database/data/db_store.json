@@ -1,0 +1,242 @@
+{
+  "users": [
+    {
+      "id": "usr-shuxrat",
+      "name": "Bo‘riyev Shuxrat Xursandovich",
+      "email": "shuxrat@bandixon.gov.uz",
+      "phone": "+998993361988",
+      "role": "ADMIN",
+      "passwordHash": "e426a837bbd1ad0168da33577465a62e6ae94c0632a4fdd3640061cd883a319a",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-adham",
+      "name": "Abdurazzoqov Adham Ibragimovich",
+      "email": "adham@bandixon.gov.uz",
+      "phone": "+998999509300",
+      "role": "EMPLOYEE",
+      "passwordHash": "6dcaf63d586342a7cdd5956944a1cd1d6c68b1669b0ef57d6b3f0b71220621c1",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-nurbek",
+      "name": "Abdimurodov Nurbek Maxmud o‘g‘li",
+      "email": "nurbek@bandixon.gov.uz",
+      "phone": "+998958702122",
+      "role": "EMPLOYEE",
+      "passwordHash": "22d775f20c2fe9dcad7181df4a95fcd6d64e32e063cce25fc75e0999c2fb2604",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-sirojiddin",
+      "name": "Eshboyev Sirojiddin Urol o‘g‘li",
+      "email": "sirojiddin@bandixon.gov.uz",
+      "phone": "+998978489495",
+      "role": "EMPLOYEE",
+      "passwordHash": "f737e0f0a86181bdd9dedbd7cc487b3e1c35e14e899f465871ac3bbe27f8858a",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-boboqulov",
+      "name": "Boboqulov Adham Xushboq o‘g‘li",
+      "email": "boboqulov@bandixon.gov.uz",
+      "phone": "+998933139495",
+      "role": "EMPLOYEE",
+      "passwordHash": "a42ef0253338351353e19c30a6633affeca7d3a3765aac4dbedea00bfe168be0",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-yuldashev",
+      "name": "Yuldashev Eldor Turdimurot o‘g‘li",
+      "email": "yuldashev@bandixon.gov.uz",
+      "phone": "+998950681797",
+      "role": "EMPLOYEE",
+      "passwordHash": "a9761de27095ae0dfc424d8fc2802e95b326634f1e18782c36ba00434bc626c9",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-yusupov",
+      "name": "Yusupov Abdunazar Almurat o‘g‘li",
+      "email": "yusupov@bandixon.gov.uz",
+      "phone": "+998888460698",
+      "role": "EMPLOYEE",
+      "passwordHash": "6f81cb624108ef854a5314c90e5d2648ab81640ac0199d2d043752b7745ce31b",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "usr-orozov",
+      "name": "O‘rozov Isomiddin Azamat o‘g‘li",
+      "email": "orozov@bandixon.gov.uz",
+      "phone": "+998992652707",
+      "role": "EMPLOYEE",
+      "passwordHash": "dbe15eef849949e2855264cc2d8cea60a82da844fee8883f2b9548981d4ef968",
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    }
+  ],
+  "employees": [
+    {
+      "id": "emp-shuxrat",
+      "userId": "usr-shuxrat",
+      "employeeCode": "EMP-001",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Bo‘lim boshlig‘i",
+      "isTrackingEnabled": false,
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-adham",
+      "userId": "usr-adham",
+      "employeeCode": "EMP-101",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Prognoz bo‘yicha yetakchi mutaxassis",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-nurbek",
+      "userId": "usr-nurbek",
+      "employeeCode": "EMP-102",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Akt bo‘yicha yetakchi mutaxassis",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-sirojiddin",
+      "userId": "usr-sirojiddin",
+      "employeeCode": "EMP-103",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Davlat inspektori",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-boboqulov",
+      "userId": "usr-boboqulov",
+      "employeeCode": "EMP-104",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Davlat inspektori",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-yuldashev",
+      "userId": "usr-yuldashev",
+      "employeeCode": "EMP-105",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Davlat inspektori",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-yusupov",
+      "userId": "usr-yusupov",
+      "employeeCode": "EMP-106",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Davlat inspektori",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    },
+    {
+      "id": "emp-orozov",
+      "userId": "usr-orozov",
+      "employeeCode": "EMP-107",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Davlat inspektori",
+      "isTrackingEnabled": true,
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
+      "createdAt": "2026-09-21T09:00:00.000Z",
+      "updatedAt": "2026-09-21T09:00:00.000Z"
+    }
+  ],
+  "workSessions": [
+    {
+      "id": "ws-1790059331643-rcvw",
+      "employeeId": "emp-shuxrat",
+      "startedAt": "2026-09-22T06:42:11.643Z",
+      "startLatitude": 37.5255,
+      "startLongitude": 67.2458,
+      "status": "COMPLETED",
+      "endedAt": "2026-09-22T06:42:11.648Z",
+      "endLatitude": 37.2242,
+      "endLongitude": 67.2783
+    }
+  ],
+  "locations": [
+    {
+      "id": "loc-1790059331644-noi2",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.5255,
+      "longitude": 67.2458,
+      "accuracy": null,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Jarqo‘rg‘on tumani",
+      "timestamp": "2026-09-22T06:42:11.643Z",
+      "createdAt": "2026-09-22T06:42:11.644Z"
+    },
+    {
+      "id": "loc-1790059331649-fsar",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.2242,
+      "longitude": 67.2783,
+      "accuracy": 5,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Termiz shahri",
+      "timestamp": "2026-09-22T06:42:11.649Z",
+      "createdAt": "2026-09-22T06:42:11.649Z"
+    }
+  ],
+  "geofences": [
+    {
+      "id": "gf-1",
+      "name": "Bandixon tuman O'simliklar karantini va himoyasi bo'limi",
+      "latitude": 37.842429,
+      "longitude": 67.377811,
+      "radius": 500,
+      "isActive": true,
+      "createdAt": "2026-09-21T09:00:00.000Z"
+    }
+  ]
+}
