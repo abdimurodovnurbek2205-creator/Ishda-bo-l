@@ -14,19 +14,30 @@ export function haversineDistanceKm(
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c * 100) / 100;
+  return Math.round(R * c * 1000) / 1000; // precision in meters converted to km
 }
 
-export function calculateTotalRouteDistance(points: Array<{ latitude: number; longitude: number }>): number {
+export function calculateTotalRouteDistance(
+  points: Array<{ latitude: number; longitude: number }>,
+  minThresholdMeters: number = 5
+): number {
   if (points.length < 2) return 0;
-  let total = 0;
+  let totalKm = 0;
+  let prevPoint = points[0];
+
   for (let i = 1; i < points.length; i++) {
-    total += haversineDistanceKm(
-      points[i - 1].latitude,
-      points[i - 1].longitude,
-      points[i].latitude,
-      points[i].longitude
+    const currPoint = points[i];
+    const distKm = haversineDistanceKm(
+      prevPoint.latitude,
+      prevPoint.longitude,
+      currPoint.latitude,
+      currPoint.longitude
     );
+    // Ignore small GPS jitter under minThresholdMeters (0.005 km = 5 meters)
+    if (distKm * 1000 >= minThresholdMeters) {
+      totalKm += distKm;
+      prevPoint = currPoint;
+    }
   }
-  return Math.round(total * 100) / 100;
+  return Math.round(totalKm * 100) / 100;
 }

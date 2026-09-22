@@ -47,19 +47,72 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
     }
   };
 
+  const [lastSentTime, setLastSentTime] = useState<string>('');
+
+  const sendLocationUpdate = async (lat: number, lng: number, speed?: number | null, heading?: number | null, accuracy?: number | null) => {
+    if (!employee) return;
+    try {
+      const payload = {
+        employeeId: employee.id,
+        latitude: lat,
+        longitude: lng,
+        accuracy: accuracy ?? 5,
+        speed: speed ?? 0,
+        heading: heading ?? 0,
+        timestamp: new Date().toISOString(),
+      };
+      const token = localStorage.getItem('auth_token');
+      await fetch('/api/location/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      setLastSentTime(new Date().toLocaleTimeString('uz-UZ'));
+    } catch (e) {
+      console.error('Failed to post live location update', e);
+    }
+  };
+
   useEffect(() => {
     fetchSession();
-    // Watch geolocation if supported
+
+    let watchId: number | null = null;
+    let syncInterval: any = null;
+
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      watchId = navigator.geolocation.watchPosition(
         (pos) => {
-          setCurrentCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          const { latitude, longitude, speed, heading, accuracy } = pos.coords;
+          setCurrentCoords({ lat: latitude, lng: longitude });
+          if (activeSession) {
+            sendLocationUpdate(latitude, longitude, speed, heading, accuracy);
+          }
         },
-        (err) => console.log(err),
-        { enableHighAccuracy: true }
+        (err) => console.log('Geolocation watch error:', err),
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
       );
     }
-  }, [employee]);
+
+    if (activeSession) {
+      syncInterval = setInterval(() => {
+        if (currentCoords) {
+          sendLocationUpdate(currentCoords.lat, currentCoords.lng);
+        }
+      }, 10000);
+    }
+
+    return () => {
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      if (syncInterval) {
+        clearInterval(syncInterval);
+      }
+    };
+  }, [employee, activeSession?.id]);
 
   const handleStartSession = async () => {
     if (!employee) return;
@@ -78,6 +131,7 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
       if (res.ok) {
         setActiveSession(data.session);
         setMessage('✅ Ish kuni va GPS monitoring boshlandi!');
+        sendLocationUpdate(lat, lng);
       } else {
         setMessage(`❌ Xatolik: ${data.error}`);
       }
@@ -175,13 +229,20 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
 
             {activeSession ? (
               <div className="space-y-4">
-                <p className="text-xs text-slate-300">
-                  Boshlangan vaqti: <span className="font-mono text-emerald-400 font-bold">{new Date(activeSession.startedAt).toLocaleTimeString()}</span>
-                </p>
+                <div className="flex items-center justify-center gap-4 text-xs text-slate-300">
+                  <p>
+                    Boshlangan vaqti: <span className="font-mono text-emerald-400 font-bold">{new Date(activeSession.startedAt).toLocaleTimeString()}</span>
+                  </p>
+                  {lastSentTime && (
+                    <p className="text-[11px] text-sky-400 font-medium">
+                      📡 So‘nggi GPS: <span className="font-mono font-bold text-sky-300">{lastSentTime}</span>
+                    </p>
+                  )}
+                </div>
                 <button
                   onClick={handleEndSession}
                   disabled={loading}
-                  className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-colors"
+                  className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg transition-colors cursor-pointer"
                 >
                   <Square className="w-5 h-5 fill-current" />
                   Ish Kunini Yakunlash

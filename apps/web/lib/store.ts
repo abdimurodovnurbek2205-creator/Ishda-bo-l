@@ -13,6 +13,8 @@ import { detectUzbekistanDistrict } from './uzbekistan-geocoder';
 import { calculateTotalRouteDistance } from './distance';
 import { checkGeofenceTransitions } from './geofence';
 
+import { getUzbekistanDateString } from './date-utils';
+
 export const storeService = {
   // 1. Auth & Users
   getUserByEmail(email: string) {
@@ -245,7 +247,10 @@ export const storeService = {
   getEmployeeLocations(employeeId: string, dateStr?: string): LocationPoint[] {
     let list = dbStore.locations.filter((l) => l.employeeId === employeeId);
     if (dateStr) {
-      list = list.filter((l) => l.timestamp.startsWith(dateStr));
+      list = list.filter((l) => {
+        const uzDate = getUzbekistanDateString(l.timestamp);
+        return uzDate === dateStr || l.timestamp.startsWith(dateStr);
+      });
     }
     // Sort ascending by timestamp
     return list.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
@@ -255,30 +260,59 @@ export const storeService = {
   getLiveSummary(): EmployeeLiveSummary[] {
     const employees = this.getAllEmployees();
     const now = Date.now();
+    const todayStr = getUzbekistanDateString();
 
     return employees.map((emp) => {
       const empLocs = this.getEmployeeLocations(emp.id);
-      let latestLoc = empLocs.length > 0 ? empLocs[empLocs.length - 1] : null;
       const activeSession = this.getActiveWorkSession(emp.id);
 
-      // If active session exists but no location point was saved, use start location
-      if (!latestLoc && activeSession && activeSession.startLatitude && activeSession.startLongitude) {
-        latestLoc = {
-          id: `loc-fallback-${emp.id}`,
-          employeeId: emp.id,
-          latitude: activeSession.startLatitude,
-          longitude: activeSession.startLongitude,
-          accuracy: 5,
-          speed: 0,
-          heading: 0,
-          region: 'Surxondaryo viloyati',
-          district: 'Bandixon tumani',
-          timestamp: activeSession.startedAt,
-          createdAt: activeSession.startedAt,
+      let latestLoc: LocationPoint | null = null;
+      let todayDistanceKm = 0;
+      let status: 'WORKING' | 'DELAYED' | 'OFFLINE' | 'NOT_WORKING' = 'NOT_WORKING';
+
+      if (activeSession) {
+        status = 'WORKING'; // Active session is ALWAYS WORKING
+        const sessionStartTime = new Date(activeSession.startedAt).getTime();
+        const sessionLocs = empLocs.filter((l) => new Date(l.timestamp).getTime() >= sessionStartTime - 30000);
+
+        if (sessionLocs.length > 0) {
+          latestLoc = sessionLocs[sessionLocs.length - 1];
+        } else {
+          // If session started today but no location update arrived yet, fallback to session start point
+          latestLoc = {
+            id: `loc-session-start-${activeSession.id}`,
+            employeeId: emp.id,
+            latitude: activeSession.startLatitude || 37.842429,
+            longitude: activeSession.startLongitude || 67.377811,
+            accuracy: 5,
+            speed: 0,
+            heading: 0,
+            region: 'Surxondaryo viloyati',
+            district: 'Bandixon tumani',
+            timestamp: activeSession.startedAt,
+            createdAt: activeSession.startedAt,
+          };
+        }
+
+        // Calculate distance for active session points
+        const startPoint = {
+          latitude: activeSession.startLatitude || 37.842429,
+          longitude: activeSession.startLongitude || 67.377811,
         };
+        const pointsForDistance = [startPoint, ...sessionLocs.map((l) => ({ latitude: l.latitude, longitude: l.longitude }))];
+        todayDistanceKm = calculateTotalRouteDistance(pointsForDistance);
+      } else {
+        status = 'NOT_WORKING';
+        const todayLocs = this.getEmployeeLocations(emp.id, todayStr);
+        if (todayLocs.length > 0) {
+          latestLoc = todayLocs[todayLocs.length - 1];
+          todayDistanceKm = calculateTotalRouteDistance(todayLocs);
+        } else if (empLocs.length > 0) {
+          latestLoc = empLocs[empLocs.length - 1];
+        }
       }
 
-      // Default location fallback if employee has no location point at all (Bandixon HQ)
+      // Final default location fallback if employee has no location point at all (Bandixon HQ)
       if (!latestLoc) {
         latestLoc = {
           id: `loc-default-${emp.id}`,
@@ -295,34 +329,9 @@ export const storeService = {
         };
       }
 
-      // Today's distance
-      const todayStr = new Date().toISOString().split('T')[0];
-      const todayLocs = this.getEmployeeLocations(emp.id, todayStr);
-      const todayDistanceKm = calculateTotalRouteDistance(todayLocs);
-
       let lastUpdateAgoSeconds = undefined;
-      let status: 'WORKING' | 'DELAYED' | 'OFFLINE' | 'NOT_WORKING' = 'NOT_WORKING';
-
       if (latestLoc) {
-        lastUpdateAgoSeconds = Math.round((now - new Date(latestLoc.timestamp).getTime()) / 1000);
-      }
-
-      if (activeSession) {
-        // Evaluate last update time against session start time or recent location point during session
-        const sessionStartTime = new Date(activeSession.startedAt).getTime();
-        const sessionLocs = empLocs.filter((l) => new Date(l.timestamp).getTime() >= sessionStartTime - 60000);
-        const sessionLatestLoc = sessionLocs.length > 0 ? sessionLocs[sessionLocs.length - 1] : null;
-
-        const effectiveTimestamp = sessionLatestLoc ? sessionLatestLoc.timestamp : activeSession.startedAt;
-        lastUpdateAgoSeconds = Math.round((now - new Date(effectiveTimestamp).getTime()) / 1000);
-
-        status = 'WORKING'; // Green: Active ongoing work session is ALWAYS WORKING
-
-        if (sessionLatestLoc) {
-          latestLoc = sessionLatestLoc;
-        }
-      } else {
-        status = 'NOT_WORKING'; // Gray: Session ended or not started
+        lastUpdateAgoSeconds = Math.max(0, Math.round((now - new Date(latestLoc.timestamp).getTime()) / 1000));
       }
 
       const currentDistrict = latestLoc?.district || 'Bandixon tumani';
