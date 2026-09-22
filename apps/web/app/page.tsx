@@ -94,7 +94,9 @@ export default function DashboardPage() {
 
   const totalCount = filteredEmployees.length;
   const workingCount = filteredEmployees.filter((e) => e.status === 'WORKING').length;
-  const delayedCount = filteredEmployees.filter((e) => e.status === 'DELAYED').length;
+  const delayedCount = filteredEmployees.filter(
+    (e) => e.status === 'WORKING' && e.lastUpdateAgoSeconds !== undefined && e.lastUpdateAgoSeconds > 3600
+  ).length;
   const offlineCount = filteredEmployees.filter((e) => e.status === 'OFFLINE').length;
   const notWorkingCount = filteredEmployees.filter((e) => e.status === 'NOT_WORKING').length;
 

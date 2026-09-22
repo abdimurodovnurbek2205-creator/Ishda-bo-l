@@ -316,11 +316,7 @@ export const storeService = {
         const effectiveTimestamp = sessionLatestLoc ? sessionLatestLoc.timestamp : activeSession.startedAt;
         lastUpdateAgoSeconds = Math.round((now - new Date(effectiveTimestamp).getTime()) / 1000);
 
-        if (lastUpdateAgoSeconds <= 3600) {
-          status = 'WORKING'; // Green: Active ongoing work session today
-        } else {
-          status = 'DELAYED'; // Yellow: Active session, but no update for over 1 hour
-        }
+        status = 'WORKING'; // Green: Active ongoing work session is ALWAYS WORKING
 
         if (sessionLatestLoc) {
           latestLoc = sessionLatestLoc;
