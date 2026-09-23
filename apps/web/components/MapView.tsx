@@ -132,7 +132,7 @@ export default function MapView({
         if (emp.status === 'DELAYED') {
           colorClass = 'bg-amber-500 border-white text-white';
           statusBadge = 'Kechikmoqda';
-        } else if (emp.status === 'OFFLINE' || emp.status === 'NOT_WORKING') {
+        } else if (emp.status === 'OFFLINE') {
           colorClass = 'bg-rose-500 border-white text-white';
           statusBadge = 'Offline';
         }
