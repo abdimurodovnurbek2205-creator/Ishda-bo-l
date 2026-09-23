@@ -61,7 +61,15 @@ class MemoryDatabase {
       }
 
       if (parsed.workSessions && Array.isArray(parsed.workSessions)) {
+        const nowMs = Date.now();
         for (const ws of parsed.workSessions) {
+          if (ws.status === 'ACTIVE' && ws.startedAt) {
+            const ageHours = (nowMs - new Date(ws.startedAt).getTime()) / (1000 * 3600);
+            if (ageHours > 16) {
+              ws.status = 'COMPLETED';
+              ws.endedAt = new Date(new Date(ws.startedAt).getTime() + 9 * 3600 * 1000).toISOString();
+            }
+          }
           this.workSessions.set(ws.id, ws);
         }
       }

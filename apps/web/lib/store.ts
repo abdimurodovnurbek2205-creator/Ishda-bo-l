@@ -169,8 +169,17 @@ export const storeService = {
   // 3. Work Sessions
   getActiveWorkSession(employeeId: string): WorkSession | null {
     const allSessions = Array.from(dbStore.workSessions.values());
+    const todayStr = getUzbekistanDateString();
     for (const ws of allSessions) {
       if (ws.employeeId === employeeId && ws.status === 'ACTIVE') {
+        const sessionDate = getUzbekistanDateString(ws.startedAt);
+        // Stale session from a previous day -> auto-close
+        if (sessionDate !== todayStr) {
+          ws.status = 'COMPLETED';
+          ws.endedAt = new Date(new Date(ws.startedAt).getTime() + 9 * 3600 * 1000).toISOString();
+          dbStore.saveToFile();
+          continue;
+        }
         return ws;
       }
     }
