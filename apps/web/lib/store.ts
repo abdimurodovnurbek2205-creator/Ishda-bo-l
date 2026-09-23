@@ -313,7 +313,6 @@ export const storeService = {
       let status: 'WORKING' | 'DELAYED' | 'OFFLINE' | 'NOT_WORKING' = 'NOT_WORKING';
 
       if (activeSession) {
-        status = 'WORKING'; // Active session is ALWAYS WORKING
         const sessionStartTime = new Date(activeSession.startedAt).getTime();
         const sessionLocs = empLocs.filter((l) => new Date(l.timestamp).getTime() >= sessionStartTime - 30000);
 
@@ -334,6 +333,18 @@ export const storeService = {
             timestamp: activeSession.startedAt,
             createdAt: activeSession.startedAt,
           };
+        }
+
+        const lastSignalSeconds = latestLoc
+          ? Math.max(0, Math.round((now - new Date(latestLoc.timestamp).getTime()) / 1000))
+          : Math.max(0, Math.round((now - sessionStartTime) / 1000));
+
+        if (lastSignalSeconds > 900) {
+          status = 'OFFLINE'; // Signal lost over 15 minutes ago
+        } else if (lastSignalSeconds > 300) {
+          status = 'DELAYED'; // Signal delayed over 5 minutes ago
+        } else {
+          status = 'WORKING'; // Active real-time signal
         }
 
         // Calculate distance for active session points
