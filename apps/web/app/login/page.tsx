@@ -74,37 +74,7 @@ function LoginFormContent() {
         </div>
       )}
 
-      {/* Official OneID Login Button */}
-      <div className="space-y-2">
-        <button
-          type="button"
-          onClick={handleOneIdLogin}
-          className="w-full bg-blue-700 hover:bg-blue-800 active:scale-[0.99] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-between shadow-md transition-all border border-blue-600 cursor-pointer"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-white text-blue-700 font-black text-xs flex items-center justify-center tracking-tighter">
-              1ID
-            </div>
-            <span className="text-xs font-bold tracking-wide">OneID orqali Kirish</span>
-          </div>
-          <span className="bg-blue-600 text-blue-100 text-[10px] px-2 py-0.5 rounded-md font-semibold">
-            e-Gov SSO
-          </span>
-        </button>
-        <p className="text-[10px] text-slate-400 text-center">
-          O‘zbekiston Yagona Identifikatsiya Tizimi (JSHSHIR / E-IMZO)
-        </p>
-      </div>
-
-      <div className="relative flex py-1 items-center">
-        <div className="flex-grow border-t border-slate-200"></div>
-        <span className="flex-shrink mx-3 text-slate-400 font-semibold text-[10px] uppercase">
-          Yoki Login Parol Bilan
-        </span>
-        <div className="flex-grow border-t border-slate-200"></div>
-      </div>
-
-      {/* Regular Login Form */}
+      {/* 1. Regular Login Form (First) */}
       <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
         <input type="text" name="prevent_autofill_user" style={{ display: 'none' }} tabIndex={-1} />
         <input type="password" name="prevent_autofill_pass" style={{ display: 'none' }} tabIndex={-1} />
@@ -150,6 +120,32 @@ function LoginFormContent() {
           <ArrowRight className="w-4 h-4" />
         </button>
       </form>
+
+      {/* Divider */}
+      <div className="relative flex py-1 items-center">
+        <div className="flex-grow border-t border-slate-200"></div>
+        <span className="flex-shrink mx-3 text-slate-400 font-semibold text-[10px] uppercase tracking-wider">
+          Yoki
+        </span>
+        <div className="flex-grow border-t border-slate-200"></div>
+      </div>
+
+      {/* 2. Official OneID Login Button (Below login/password fields) */}
+      <div>
+        <button
+          type="button"
+          onClick={handleOneIdLogin}
+          className="w-full bg-[#0052CC] hover:bg-[#0043A8] active:scale-[0.99] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-3 shadow-md transition-all cursor-pointer border border-blue-700"
+        >
+          {/* Official OneID Emblem Icon */}
+          <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center shrink-0 shadow-sm p-0.5">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#0052CC]">
+              <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm-1 6h2v2h-2V8zm0 4h2v6h-2v-6z" />
+            </svg>
+          </div>
+          <span className="text-xs font-bold tracking-wide">OneID orqali Kirish</span>
+        </button>
+      </div>
     </div>
   );
 }
