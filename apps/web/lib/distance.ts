@@ -19,7 +19,7 @@ export function haversineDistanceKm(
 
 export function calculateTotalRouteDistance(
   points: Array<{ latitude: number; longitude: number }>,
-  minThresholdMeters: number = 5
+  minThresholdMeters: number = 15
 ): number {
   if (points.length < 2) return 0;
   let totalKm = 0;

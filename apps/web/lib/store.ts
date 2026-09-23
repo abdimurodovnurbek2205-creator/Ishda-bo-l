@@ -10,7 +10,7 @@ import {
   GeofenceEvent,
 } from '@repo/types';
 import { detectUzbekistanDistrict } from './uzbekistan-geocoder';
-import { calculateTotalRouteDistance } from './distance';
+import { calculateTotalRouteDistance, haversineDistanceKm } from './distance';
 import { checkGeofenceTransitions } from './geofence';
 
 import { getUzbekistanDateString } from './date-utils';
@@ -253,9 +253,19 @@ export const storeService = {
       createdAt: new Date().toISOString(),
     };
 
-    // Find previous location for geofence transition checking
+    // Find previous location for geofence transition checking and noise filtering
     const empLocs = this.getEmployeeLocations(payload.employeeId);
     const prevLoc = empLocs.length > 0 ? empLocs[empLocs.length - 1] : null;
+
+    // Filter out indoor GPS jitter if employee hasn't moved beyond 15 meters
+    if (prevLoc) {
+      const distKm = haversineDistanceKm(prevLoc.latitude, prevLoc.longitude, payload.latitude, payload.longitude);
+      if (distKm * 1000 < 15) {
+        prevLoc.timestamp = point.timestamp;
+        dbStore.saveToFile();
+        return { location: prevLoc, events: [] };
+      }
+    }
 
     dbStore.locations.push(point);
     dbStore.saveToFile();
