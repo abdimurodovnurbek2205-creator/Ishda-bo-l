@@ -123,7 +123,7 @@ export default function MapView({
       markersGroupRef.current.clearLayers();
 
       employees.forEach((emp) => {
-        if (!emp.latestLocation) return;
+        if (!emp.latestLocation || emp.status === 'NOT_WORKING') return;
 
         const { latitude, longitude } = emp.latestLocation;
         let colorClass = 'bg-emerald-500 border-white text-white';

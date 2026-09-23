@@ -72,22 +72,17 @@ function LiveMapContent() {
   return (
     <div className="flex-1 relative w-full h-full">
       {/* Map Controls Floating Bar */}
-      <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur border border-slate-200 shadow-md rounded-xl p-3 flex items-center gap-4 text-xs font-semibold text-slate-700">
+      <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur border border-slate-200 shadow-md rounded-xl p-3 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-700">
         <div className="flex items-center gap-1.5 text-emerald-700">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          Ishda (Active)
+          Ishda ({employees.filter(e => e.status === 'WORKING').length} kishi)
         </div>
-        <div className="flex items-center gap-1.5 text-amber-700">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-          Kechikmoqda (Delayed)
-        </div>
-        <div className="flex items-center gap-1.5 text-rose-700">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-          Offline / Ishda emas
+        <div className="flex items-center gap-1.5 text-slate-500 border-l pl-3 border-slate-200">
+          Ishda emas ({employees.filter(e => e.status === 'NOT_WORKING').length} kishi)
         </div>
         <button
           onClick={fetchLive}
-          className="ml-2 p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+          className="ml-auto p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
           title="Yangilash"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />

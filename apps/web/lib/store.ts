@@ -330,26 +330,10 @@ export const storeService = {
         if (todayLocs.length > 0) {
           latestLoc = todayLocs[todayLocs.length - 1];
           todayDistanceKm = calculateTotalRouteDistance(todayLocs);
-        } else if (empLocs.length > 0) {
-          latestLoc = empLocs[empLocs.length - 1];
+        } else {
+          latestLoc = null;
+          todayDistanceKm = 0;
         }
-      }
-
-      // Final default location fallback if employee has no location point at all (Bandixon HQ)
-      if (!latestLoc) {
-        latestLoc = {
-          id: `loc-default-${emp.id}`,
-          employeeId: emp.id,
-          latitude: 37.842429,
-          longitude: 67.377811,
-          accuracy: 10,
-          speed: 0,
-          heading: 0,
-          region: 'Surxondaryo viloyati',
-          district: 'Bandixon tumani',
-          timestamp: emp.createdAt || new Date().toISOString(),
-          createdAt: emp.createdAt || new Date().toISOString(),
-        };
       }
 
       let lastUpdateAgoSeconds = undefined;
