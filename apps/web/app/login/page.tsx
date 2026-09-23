@@ -95,10 +95,6 @@ function LoginFormContent() {
     }
   };
 
-  const handleOneIdLogin = () => {
-    window.location.href = '/api/auth/oneid/login';
-  };
-
   return (
     <div className="p-6 space-y-5 text-xs">
       {error && (
@@ -163,18 +159,17 @@ function LoginFormContent() {
         <div className="flex-grow border-t border-slate-200"></div>
       </div>
 
-      {/* 2. Official OneID Login Button (Exact ONE ID Emblem Logo) */}
+      {/* 2. Official OneID Login Link (Native <a> tag to ensure reliable cross-device navigation) */}
       <div>
-        <button
-          type="button"
-          onClick={handleOneIdLogin}
-          className="w-full bg-white hover:bg-slate-50 active:scale-[0.99] text-[#002C6C] font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-3 shadow-md transition-all cursor-pointer border-2 border-[#002C6C]/40 hover:border-[#002C6C]"
+        <a
+          href="/api/auth/oneid/login"
+          className="w-full bg-white hover:bg-slate-50 active:scale-[0.99] text-[#002C6C] font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-3 shadow-md transition-all cursor-pointer border-2 border-[#002C6C]/40 hover:border-[#002C6C] text-decoration-none"
         >
           <div className="bg-[#002C6C]/5 p-1 rounded-lg flex items-center justify-center border border-[#002C6C]/10">
             <OneIdLogoSvg className="h-6 w-auto shrink-0" />
           </div>
           <span className="text-xs font-extrabold tracking-wide text-[#002C6C]">OneID orqali Kirish</span>
-        </button>
+        </a>
       </div>
     </div>
   );
