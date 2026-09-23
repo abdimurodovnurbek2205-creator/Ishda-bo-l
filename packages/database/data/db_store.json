@@ -242,6 +242,39 @@
       "endedAt": "2026-09-23T04:15:10.798Z",
       "endLatitude": 37.2242,
       "endLongitude": 67.2783
+    },
+    {
+      "id": "ws-1790137381190-9k4j",
+      "employeeId": "emp-shuxrat",
+      "startedAt": "2026-09-23T04:23:01.190Z",
+      "startLatitude": 37.5255,
+      "startLongitude": 67.2458,
+      "status": "COMPLETED",
+      "endedAt": "2026-09-23T04:23:01.196Z",
+      "endLatitude": 37.2242,
+      "endLongitude": 67.2783
+    },
+    {
+      "id": "ws-1790137583334-6obu",
+      "employeeId": "emp-shuxrat",
+      "startedAt": "2026-09-23T04:26:23.335Z",
+      "startLatitude": 37.5255,
+      "startLongitude": 67.2458,
+      "status": "COMPLETED",
+      "endedAt": "2026-09-23T04:26:23.341Z",
+      "endLatitude": 37.2242,
+      "endLongitude": 67.2783
+    },
+    {
+      "id": "ws-1790137743389-72d6",
+      "employeeId": "emp-shuxrat",
+      "startedAt": "2026-09-23T04:29:03.389Z",
+      "startLatitude": 37.5255,
+      "startLongitude": 67.2458,
+      "status": "COMPLETED",
+      "endedAt": "2026-09-23T04:29:03.392Z",
+      "endLatitude": 37.2242,
+      "endLongitude": 67.2783
     }
   ],
   "locations": [
@@ -374,6 +407,84 @@
       "district": "Termiz shahri",
       "timestamp": "2026-09-23T04:15:10.799Z",
       "createdAt": "2026-09-23T04:15:10.799Z"
+    },
+    {
+      "id": "loc-1790137381191-czhz",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.5255,
+      "longitude": 67.2458,
+      "accuracy": null,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Jarqo‘rg‘on tumani",
+      "timestamp": "2026-09-23T04:23:01.190Z",
+      "createdAt": "2026-09-23T04:23:01.191Z"
+    },
+    {
+      "id": "loc-1790137381197-ctxi",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.2242,
+      "longitude": 67.2783,
+      "accuracy": 5,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Termiz shahri",
+      "timestamp": "2026-09-23T04:23:01.197Z",
+      "createdAt": "2026-09-23T04:23:01.197Z"
+    },
+    {
+      "id": "loc-1790137583335-xb39",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.5255,
+      "longitude": 67.2458,
+      "accuracy": null,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Jarqo‘rg‘on tumani",
+      "timestamp": "2026-09-23T04:26:23.335Z",
+      "createdAt": "2026-09-23T04:26:23.335Z"
+    },
+    {
+      "id": "loc-1790137583344-1mbe",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.2242,
+      "longitude": 67.2783,
+      "accuracy": 5,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Termiz shahri",
+      "timestamp": "2026-09-23T04:26:23.344Z",
+      "createdAt": "2026-09-23T04:26:23.344Z"
+    },
+    {
+      "id": "loc-1790137743389-t8fv",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.5255,
+      "longitude": 67.2458,
+      "accuracy": null,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Jarqo‘rg‘on tumani",
+      "timestamp": "2026-09-23T04:29:03.389Z",
+      "createdAt": "2026-09-23T04:29:03.389Z"
+    },
+    {
+      "id": "loc-1790137743394-h4q2",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.2242,
+      "longitude": 67.2783,
+      "accuracy": 5,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Termiz shahri",
+      "timestamp": "2026-09-23T04:29:03.394Z",
+      "createdAt": "2026-09-23T04:29:03.394Z"
     }
   ],
   "geofences": [

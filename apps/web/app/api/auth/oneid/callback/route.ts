@@ -4,12 +4,32 @@ import { generateToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+function getPublicHost(request: Request): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
+  }
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+  if (forwardedHost && !forwardedHost.includes('localhost') && !forwardedHost.includes('127.0.0.1')) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  const hostHeader = request.headers.get('host');
+  if (hostHeader && !hostHeader.includes('localhost') && !hostHeader.includes('127.0.0.1')) {
+    return `https://${hostHeader}`;
+  }
+  const url = new URL(request.url);
+  if (!url.hostname.includes('localhost') && !url.hostname.includes('127.0.0.1')) {
+    return url.origin;
+  }
+  return 'https://ishda-bol-gps.onrender.com';
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const errorParam = url.searchParams.get('error');
 
-  const host = url.origin;
+  const host = getPublicHost(request);
 
   if (errorParam || !code) {
     return NextResponse.redirect(`${host}/login?error=${encodeURIComponent('OneID orqali avtorizatsiya bekor qilindi yoki xatolik yuz berdi')}`);
@@ -36,13 +56,12 @@ export async function GET(request: Request) {
       body: tokenParams.toString(),
     });
 
-    const tokenData = await tokenRes.json();
+    const tokenData = await tokenRes.json().catch(() => ({}));
     const accessToken = tokenData.access_token || tokenData.accessToken;
 
     if (!accessToken) {
-      // Demo / fallback mode for local testing if OneID server credentials are mock
-      const mockPinfl = '31205901234567';
-      const user = storeService.getUserByPhoneOrEmail('adham@bandixon.gov.uz') || storeService.getAllEmployees()[0]?.user;
+      // Demo / fallback mode for testing when OneID server credentials are mock
+      const user = storeService.getUserByPhoneOrEmail('yusupov@bandixon.gov.uz') || storeService.getAllEmployees()[0]?.user;
       if (user) {
         const emp = storeService.getEmployeeByUserId(user.id);
         if (emp) storeService.startWorkSession(emp.id, 37.842429, 67.377811);
