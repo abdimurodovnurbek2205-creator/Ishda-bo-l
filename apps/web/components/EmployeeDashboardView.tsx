@@ -17,6 +17,8 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
   const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [message, setMessage] = useState<string>('');
 
+  const [gpsError, setGpsError] = useState<string>('');
+
   const fetchSession = async () => {
     if (!employee) return;
     try {
@@ -25,22 +27,7 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
       if (data.session) {
         setActiveSession(data.session);
       } else {
-        // Auto-start active session upon loading employee portal if no session active today
-        const startRes = await fetch('/api/work-sessions/start', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            employeeId: employee.id,
-            latitude: currentCoords?.lat || 37.842429,
-            longitude: currentCoords?.lng || 67.377811,
-          }),
-        });
-        const startData = await startRes.json();
-        if (startRes.ok) {
-          setActiveSession(startData.session);
-        } else {
-          setActiveSession(null);
-        }
+        setActiveSession(null);
       }
     } catch (e) {
       console.error(e);
@@ -82,18 +69,24 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
     let watchId: number | null = null;
     let syncInterval: any = null;
 
-    if (navigator.geolocation) {
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
       watchId = navigator.geolocation.watchPosition(
         (pos) => {
           const { latitude, longitude, speed, heading, accuracy } = pos.coords;
           setCurrentCoords({ lat: latitude, lng: longitude });
+          setGpsError('');
           if (activeSession) {
             sendLocationUpdate(latitude, longitude, speed, heading, accuracy);
           }
         },
-        (err) => console.log('Geolocation watch error:', err),
-        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+        (err) => {
+          console.log('Geolocation watch error:', err);
+          setGpsError('⚠️ Telefoningizda GPS o‘chirilgan yoki brauzerga joylashuv ruxsati berilmagan. Iltimos, sozlamalardan GPS va Ruxsatni yoqing!');
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }
       );
+    } else {
+      setGpsError('⚠️ Qurilmangizda geolokatsiya qo‘llab-quvvatlanmaydi.');
     }
 
     if (activeSession) {
@@ -116,11 +109,15 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
 
   const handleStartSession = async () => {
     if (!employee) return;
+    if (!currentCoords) {
+      setMessage('⚠️ GPS joylashuv hali aniqlanmadi. Telefonda GPS-ni yoqing va brauzerga joylashuv ruxsatini bering!');
+      return;
+    }
     setLoading(true);
     setMessage('');
     try {
-      const lat = currentCoords?.lat || 37.842429;
-      const lng = currentCoords?.lng || 67.377811;
+      const lat = currentCoords.lat;
+      const lng = currentCoords.lng;
 
       const res = await fetch('/api/work-sessions/start', {
         method: 'POST',
@@ -130,7 +127,7 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
       const data = await res.json();
       if (res.ok) {
         setActiveSession(data.session);
-        setMessage('✅ Ish kuni va GPS monitoring boshlandi!');
+        setMessage('✅ Ish kuni va haqiqiy GPS monitoring boshlandi!');
         sendLocationUpdate(lat, lng);
       } else {
         setMessage(`❌ Xatolik: ${data.error}`);
@@ -209,6 +206,12 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
               </p>
             </div>
           </div>
+
+          {gpsError && (
+            <div className="p-3 rounded-lg bg-rose-900/60 border border-rose-700 text-rose-200 text-xs text-center font-semibold">
+              {gpsError}
+            </div>
+          )}
 
           {message && (
             <div className="p-3 rounded-lg bg-sky-900/50 border border-sky-700 text-sky-200 text-xs text-center font-medium">
