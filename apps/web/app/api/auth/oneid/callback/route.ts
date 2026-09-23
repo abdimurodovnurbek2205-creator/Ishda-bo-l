@@ -60,7 +60,7 @@ export async function GET(request: Request) {
     const accessToken = tokenData.access_token || tokenData.accessToken;
 
     if (!accessToken) {
-      return NextResponse.redirect(`${host}/404`);
+      return NextResponse.redirect(`${host}/login?error=${encodeURIComponent('OneID avtorizatsiyasida xatolik yuz berdi')}`);
     }
 
     // 2. Fetch User Profile from OneID

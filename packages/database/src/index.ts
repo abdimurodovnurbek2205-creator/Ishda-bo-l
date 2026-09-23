@@ -77,6 +77,7 @@ class MemoryDatabase {
   }
 
   saveToFile() {
+    if (process.env.NODE_ENV === 'test' || process.env.VITEST) return;
     try {
       const fs = require('fs');
       const filePath = this.getDbFilePath();

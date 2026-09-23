@@ -35,6 +35,8 @@ export async function GET(request: Request) {
     return NextResponse.redirect(authorizeUrl);
   }
 
-  // Demo mode disabled per user request: redirect to 404 page until real ONEID_CLIENT_ID is set
-  return NextResponse.redirect(`${host}/404`);
+  // If real ONEID_CLIENT_ID is not configured yet, redirect back to login page with a clean notification
+  return NextResponse.redirect(
+    `${host}/login?error=${encodeURIComponent('OneID tizimi hozirda sozlanmoqda (rasmiy e-Gov integratsiyasi kutilmoqda). Hozircha telefon va parol orqali kiring.')}`
+  );
 }
