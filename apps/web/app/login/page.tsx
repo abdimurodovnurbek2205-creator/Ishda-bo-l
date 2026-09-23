@@ -4,18 +4,18 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Shield, Lock, Mail, ArrowRight } from 'lucide-react';
 
-function OneIdLogoSvg({ className = "h-7 w-auto" }: { className?: string }) {
+function OneIdLogoSvg({ className = "h-6 w-auto" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 95 40" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 70 36" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* Vertical text ONE */}
-      <g transform="translate(10, 32) rotate(-90)">
+      <g transform="translate(10, 29) rotate(-90)">
         <text
           x="0"
           y="0"
           fontFamily="system-ui, -apple-system, sans-serif"
-          fontSize="9.5"
+          fontSize="9"
           fontWeight="900"
-          fill="#0B3082"
+          fill="#002C6C"
           letterSpacing="1.2"
         >
           ONE
@@ -23,15 +23,15 @@ function OneIdLogoSvg({ className = "h-7 w-auto" }: { className?: string }) {
       </g>
 
       {/* Circle dot above I */}
-      <circle cx="28" cy="8" r="3" fill="#0B3082" />
+      <circle cx="26" cy="7" r="2.8" fill="#002C6C" />
 
       {/* Pillar I */}
-      <rect x="25" y="14" width="6" height="22" rx="1.5" fill="#0B3082" />
+      <rect x="23" y="13" width="6" height="20" rx="1.5" fill="#002C6C" />
 
       {/* Curved D emblem */}
       <path
-        d="M36 14 H48 C56 14 62 19 62 25 C62 31 56 36 48 36 H36 V14 Z M42.5 19.5 V30.5 H47.5 C51.5 30.5 55 28 55 25 C55 22 51.5 19.5 47.5 19.5 H42.5 Z"
-        fill="#0B3082"
+        d="M34 13 H46 C54 13 60 17.5 60 23 C60 28.5 54 33 46 33 H34 V13 Z M40 18 V28 H45.5 C49.5 28 53 26 53 23 C53 20 49.5 18 45.5 18 H40 Z"
+        fill="#002C6C"
       />
     </svg>
   );
@@ -163,16 +163,17 @@ function LoginFormContent() {
         <div className="flex-grow border-t border-slate-200"></div>
       </div>
 
-      {/* 2. Official OneID Login Button (Exact Official ONE ID Emblem Logo) */}
+      {/* 2. Official OneID Login Button (Exact ONE ID Emblem Logo) */}
       <div>
         <button
           type="button"
           onClick={handleOneIdLogin}
-          className="w-full bg-white hover:bg-slate-50 active:scale-[0.99] text-[#0B3082] font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-3 shadow-md transition-all cursor-pointer border-2 border-[#0B3082]/30 hover:border-[#0B3082]"
+          className="w-full bg-white hover:bg-slate-50 active:scale-[0.99] text-[#002C6C] font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-3 shadow-md transition-all cursor-pointer border-2 border-[#002C6C]/40 hover:border-[#002C6C]"
         >
-          {/* Exact Official ONE ID Vector Logo */}
-          <OneIdLogoSvg className="h-7 w-auto shrink-0" />
-          <span className="text-xs font-bold tracking-wide text-[#0B3082]">OneID orqali Kirish</span>
+          <div className="bg-[#002C6C]/5 p-1 rounded-lg flex items-center justify-center border border-[#002C6C]/10">
+            <OneIdLogoSvg className="h-6 w-auto shrink-0" />
+          </div>
+          <span className="text-xs font-extrabold tracking-wide text-[#002C6C]">OneID orqali Kirish</span>
         </button>
       </div>
     </div>
