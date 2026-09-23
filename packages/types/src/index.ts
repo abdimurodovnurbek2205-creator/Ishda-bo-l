@@ -9,6 +9,8 @@ export interface User {
   name: string;
   phone: string;
   email: string;
+  pinfl?: string;
+  oneIdUserId?: string;
   role: Role;
   isActive: boolean;
   createdAt: string;

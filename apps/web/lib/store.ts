@@ -33,7 +33,30 @@ export const storeService = {
     for (const u of allUsers) {
       const cleanEmail = u.email.toLowerCase();
       const cleanPhone = u.phone.toLowerCase().replace(/[\s\-\(\)]/g, '');
-      if (cleanEmail === cleanId || cleanPhone === cleanId || cleanPhone.endsWith(cleanId)) {
+      const pinflMatch = u.pinfl ? u.pinfl.trim() === cleanId : false;
+      if (cleanEmail === cleanId || cleanPhone === cleanId || cleanPhone.endsWith(cleanId) || pinflMatch) {
+        return u;
+      }
+    }
+    return null;
+  },
+
+  getUserByPinfl(pinfl: string) {
+    const cleanPinfl = pinfl.trim();
+    const allUsers = Array.from(dbStore.users.values());
+    for (const u of allUsers) {
+      if (u.pinfl && u.pinfl.trim() === cleanPinfl) {
+        return u;
+      }
+    }
+    return null;
+  },
+
+  getUserByOneId(oneIdUserId: string) {
+    const cleanId = oneIdUserId.trim();
+    const allUsers = Array.from(dbStore.users.values());
+    for (const u of allUsers) {
+      if (u.oneIdUserId && u.oneIdUserId.trim() === cleanId) {
         return u;
       }
     }

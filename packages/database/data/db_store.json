@@ -198,6 +198,17 @@
       "endedAt": "2026-09-22T06:42:11.648Z",
       "endLatitude": 37.2242,
       "endLongitude": 67.2783
+    },
+    {
+      "id": "ws-1790060249722-tjf5",
+      "employeeId": "emp-shuxrat",
+      "startedAt": "2026-09-22T06:57:29.722Z",
+      "startLatitude": 37.5255,
+      "startLongitude": 67.2458,
+      "status": "COMPLETED",
+      "endedAt": "2026-09-22T06:57:29.727Z",
+      "endLatitude": 37.2242,
+      "endLongitude": 67.2783
     }
   ],
   "locations": [
@@ -226,6 +237,32 @@
       "district": "Termiz shahri",
       "timestamp": "2026-09-22T06:42:11.649Z",
       "createdAt": "2026-09-22T06:42:11.649Z"
+    },
+    {
+      "id": "loc-1790060249723-ekqd",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.5255,
+      "longitude": 67.2458,
+      "accuracy": null,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Jarqo‘rg‘on tumani",
+      "timestamp": "2026-09-22T06:57:29.722Z",
+      "createdAt": "2026-09-22T06:57:29.723Z"
+    },
+    {
+      "id": "loc-1790060249728-ilj0",
+      "employeeId": "emp-shuxrat",
+      "latitude": 37.2242,
+      "longitude": 67.2783,
+      "accuracy": 5,
+      "speed": null,
+      "heading": null,
+      "region": "Surxondaryo viloyati",
+      "district": "Termiz shahri",
+      "timestamp": "2026-09-22T06:57:29.728Z",
+      "createdAt": "2026-09-22T06:57:29.728Z"
     }
   ],
   "geofences": [
