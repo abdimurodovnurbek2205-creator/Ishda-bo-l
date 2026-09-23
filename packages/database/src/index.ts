@@ -24,7 +24,11 @@ class MemoryDatabase {
   getDbFilePath() {
     const path = require('path');
     const fs = require('fs');
-    const dir = path.join(process.cwd(), 'packages/database/data');
+    let cwd = process.cwd();
+    if (cwd.endsWith('apps\\web') || cwd.endsWith('apps/web')) {
+      cwd = path.resolve(cwd, '../..');
+    }
+    const dir = path.join(cwd, 'packages/database/data');
     if (!fs.existsSync(dir)) {
       try {
         fs.mkdirSync(dir, { recursive: true });
