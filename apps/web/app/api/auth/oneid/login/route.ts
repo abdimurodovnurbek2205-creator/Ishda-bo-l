@@ -35,6 +35,6 @@ export async function GET(request: Request) {
     return NextResponse.redirect(authorizeUrl);
   }
 
-  // Demo / local test mode: if client_id is not yet configured, seamlessly authenticate
-  return NextResponse.redirect(`${host}/api/auth/oneid/callback?code=demo_auth_code`);
+  // Demo mode disabled per user request: redirect to 404 page until real ONEID_CLIENT_ID is set
+  return NextResponse.redirect(`${host}/404`);
 }

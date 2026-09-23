@@ -60,15 +60,7 @@ export async function GET(request: Request) {
     const accessToken = tokenData.access_token || tokenData.accessToken;
 
     if (!accessToken) {
-      // Demo / fallback mode for testing when OneID server credentials are mock
-      const user = storeService.getUserByPhoneOrEmail('yusupov@bandixon.gov.uz') || storeService.getAllEmployees()[0]?.user;
-      if (user) {
-        const emp = storeService.getEmployeeByUserId(user.id);
-        if (emp) storeService.startWorkSession(emp.id, 37.842429, 67.377811);
-        const token = generateToken({ userId: user.id, role: user.role, email: user.email });
-        return NextResponse.redirect(`${host}/login?token=${token}&oneid=success`);
-      }
-      return NextResponse.redirect(`${host}/login?error=${encodeURIComponent('OneID token olishda xatolik yuz berdi')}`);
+      return NextResponse.redirect(`${host}/404`);
     }
 
     // 2. Fetch User Profile from OneID

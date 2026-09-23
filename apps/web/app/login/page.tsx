@@ -109,7 +109,7 @@ function LoginFormContent() {
         <input type="password" name="prevent_autofill_pass" style={{ display: 'none' }} tabIndex={-1} />
 
         <div>
-          <label className="block font-bold text-slate-700 mb-1">Telefon Raqamingiz (yoki JSHSHIR)</label>
+          <label className="block font-bold text-slate-700 mb-1">Telefon Raqamingiz</label>
           <div className="relative">
             <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
