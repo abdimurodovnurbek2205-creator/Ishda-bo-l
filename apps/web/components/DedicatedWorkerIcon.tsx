@@ -37,13 +37,12 @@ export function DedicatedWorkerIcon({
     setWeather((prev) => (prev === 'SUNNY' ? 'RAINY' : prev === 'RAINY' ? 'SNOWY' : 'SUNNY'));
   };
 
-  // Dimensions & scaling per size
-  // Providing vertical portrait room so full body from head to toe is fully visible!
+  // Dimensions & scaling per size (Rounded square matching screenshot)
   const containerSizes = {
-    sm: 'w-12 h-16 rounded-xl',
-    md: 'w-16 h-22 rounded-2xl',
-    lg: 'w-24 h-32 rounded-3xl',
-    xl: 'w-32 h-44 rounded-3xl',
+    sm: 'w-10 h-10 rounded-xl',
+    md: 'w-14 h-14 rounded-2xl',
+    lg: 'w-20 h-20 rounded-2xl',
+    xl: 'w-28 h-28 rounded-3xl',
   };
 
   const weatherLabels = {
@@ -167,22 +166,20 @@ export function DedicatedWorkerIcon({
         </div>
 
         {/* ========================================================= */}
-        {/* 3. FULL-BODY WALKING WORKER (Boshdan oyoqqacha to'liq)   */}
+        {/* 3. WAIST-UP WALKING WORKER (Beldan pastki qismi olingan)  */}
         {/* ========================================================= */}
-        <div className="relative z-20 h-full w-full flex flex-col items-center justify-end pb-1 pointer-events-none">
+        <div className="relative z-20 h-full w-full flex flex-col items-center justify-end pb-0 pointer-events-none">
           {/* Walking Bob Motion */}
-          <div className="relative h-[85%] w-auto flex flex-col items-center justify-end animate-worker-walk">
+          <div className="relative h-[88%] w-auto flex flex-col items-center justify-end animate-worker-walk">
             <Image
-              src={variant === 'avatar' ? '/worker-avatar.png' : '/worker-transparent.png'}
-              alt="Ishga borayotgan xodim (Boshdan oyoqqacha)"
+              src="/worker-waist.png"
+              alt="Ishga borayotgan xodim (Beldan yuqori)"
               width={264}
-              height={466}
+              height={275}
               unoptimized
               priority
               className="h-full w-auto max-h-full object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover/worker:scale-105"
             />
-            {/* Dynamic Step Shadow on the road */}
-            <div className="w-9 h-1.5 bg-slate-950/70 rounded-full blur-[1px] -mt-1 animate-step-shadow" />
           </div>
         </div>
 
