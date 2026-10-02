@@ -366,11 +366,9 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
         </div>
 
         <div className="p-5 sm:p-7 space-y-5">
-          {/* User Profile Card */}
-          <div className="bg-white/80 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4 backdrop-blur-md">
-            <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white font-black text-lg flex items-center justify-center shadow-md shadow-sky-500/25 shrink-0">
-              {user.name ? user.name.charAt(0) : 'X'}
-            </div>
+          {/* User Profile Card with Animated Worker Icon */}
+          <div className="bg-white/85 p-4 rounded-3xl border border-slate-200/80 shadow-md flex items-center gap-4 backdrop-blur-md">
+            <DedicatedWorkerIcon size="md" showTooltip={false} />
             <div className="space-y-0.5 min-w-0 flex-1">
               <h3 className="font-extrabold text-slate-900 text-sm sm:text-base truncate">{user.name}</h3>
               <p className="text-xs text-sky-700 font-bold flex items-center gap-1">
@@ -383,42 +381,57 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
           </div>
 
           {/* Connection & Offline Status Pill */}
-          <div className="flex items-center justify-between text-xs px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200/80 font-semibold">
+          <div className="flex items-center justify-between text-xs px-3.5 py-2.5 rounded-2xl bg-white/70 border border-slate-200/80 font-semibold shadow-xs">
             <div className="flex items-center gap-2">
               {isOnline ? (
                 <>
                   <Wifi className="w-4 h-4 text-emerald-600" />
-                  <span className="text-emerald-800">Internet bor (Jonli rejim)</span>
+                  <span className="text-emerald-800 font-bold">Internet bor (Jonli GPS)</span>
                 </>
               ) : (
                 <>
                   <WifiOff className="w-4 h-4 text-amber-600 animate-pulse" />
-                  <span className="text-amber-800">Internet yo‘q (Dala / Offline)</span>
+                  <span className="text-amber-800 font-bold">Internet yo‘q (Dala / Offline)</span>
                 </>
               )}
             </div>
 
-            {offlineQueueCount > 0 && (
-              <span className="text-[11px] text-sky-700 bg-sky-100/80 px-2.5 py-0.5 rounded-full border border-sky-300 font-bold">
+            {offlineQueueCount > 0 ? (
+              <span className="text-[11px] text-sky-800 bg-sky-100/90 px-3 py-1 rounded-full border border-sky-300 font-bold animate-pulse">
                 🌾 {offlineQueueCount} ta nuqta xotirada
+              </span>
+            ) : (
+              <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">
+                ✓ Barcha nuqtalar uzatilgan
               </span>
             )}
           </div>
 
           {gpsError && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold text-center shadow-xs">
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold text-center shadow-xs">
               {gpsError}
             </div>
           )}
 
           {message && (
-            <div className="p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-900 text-xs font-medium text-center shadow-xs">
+            <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 text-sky-900 text-xs font-medium text-center shadow-xs">
               {message}
             </div>
           )}
 
-          {/* Session Controller Card */}
-          <div className="bg-white/90 p-6 rounded-3xl border border-sky-200/80 text-center space-y-4 shadow-lg shadow-sky-900/5 backdrop-blur-md">
+          {/* Session Controller Card with Hero Worker Showcase */}
+          <div className="bg-white/90 p-6 rounded-3xl border border-sky-200/80 text-center space-y-4 shadow-xl shadow-sky-900/5 backdrop-blur-md relative overflow-hidden">
+            {/* Center Animated Worker Icon Badge */}
+            <div className="flex flex-col items-center justify-center pt-1">
+              <div className="relative p-1.5 rounded-3xl bg-gradient-to-b from-sky-400/20 via-sky-300/10 to-transparent border border-sky-200/60 shadow-lg">
+                <DedicatedWorkerIcon size="lg" />
+              </div>
+              <p className="text-[11px] font-bold text-sky-800 mt-2 flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                {activeSession ? 'Har qanday ob-havoda o‘z burchida — "Ishda bo‘l"' : 'Ertalabki ishni boshlash timsoli'}
+              </p>
+            </div>
+
             {/* Status Beacon */}
             <div
               className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black tracking-wide border shadow-2xs ${
