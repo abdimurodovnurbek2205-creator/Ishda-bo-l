@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { storeService } from '@/lib/store';
-import { calculateTotalRouteDistance } from '@/lib/distance';
+import { calculateTotalRouteDistance, detectVisitedStops } from '@/lib/distance';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -17,6 +17,7 @@ export async function GET(request: Request) {
   const locations = storeService.getEmployeeLocations(employeeId, date);
   const employee = storeService.getEmployeeById(employeeId);
   const totalDistanceKm = calculateTotalRouteDistance(locations);
+  const stops = detectVisitedStops(locations);
 
   let durationMinutes = 0;
   if (locations.length >= 2) {
@@ -36,6 +37,7 @@ export async function GET(request: Request) {
       startLocation: locations[0] || null,
       endLocation: locations.length > 0 ? locations[locations.length - 1] : null,
       points: locations,
+      stops,
     },
     {
       headers: {

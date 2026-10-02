@@ -4,11 +4,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EmployeeLiveSummary, LocationPoint, Geofence } from '@repo/types';
 import { Map, Layers, Mountain, Globe } from 'lucide-react';
 
+import { VisitedStop } from '@/lib/distance';
+
 interface MapViewProps {
   employees?: EmployeeLiveSummary[];
   selectedEmployeeId?: string | null;
   onSelectEmployee?: (emp: EmployeeLiveSummary) => void;
   routePoints?: LocationPoint[];
+  visitedStops?: VisitedStop[];
+  focusedLocation?: { lat: number; lng: number } | null;
   geofences?: Geofence[];
   center?: [number, number];
   zoom?: number;
@@ -44,6 +48,8 @@ export default function MapView({
   selectedEmployeeId = null,
   onSelectEmployee,
   routePoints = [],
+  visitedStops = [],
+  focusedLocation = null,
   geofences = [],
   center = [37.842429, 67.377811], // Default Bandixon tuman O'simliklar karantini va himoyasi bo'limi
   zoom = 13,
@@ -211,7 +217,16 @@ export default function MapView({
     }
   }, [selectedEmployeeId, employees]);
 
-  // Render Polyline Route when routePoints are provided
+  // Auto-fly map view when focusedLocation is set (e.g. clicking visited stop buttons)
+  useEffect(() => {
+    if (!mapInstanceRef.current || !focusedLocation) return;
+    mapInstanceRef.current.flyTo([focusedLocation.lat, focusedLocation.lng], 17, {
+      animate: true,
+      duration: 1.2,
+    });
+  }, [focusedLocation]);
+
+  // Render Polyline Route & Visited Stops when routePoints / visitedStops are provided
   useEffect(() => {
     if (!mapInstanceRef.current || !routeLayerRef.current) return;
 
@@ -300,6 +315,61 @@ export default function MapView({
         }
       });
 
+      // Render Dedicated Visited Field Stops Markers if provided
+      if (visitedStops && visitedStops.length > 0) {
+        visitedStops.forEach((stop) => {
+          let bg = 'bg-amber-600';
+          let border = 'border-amber-200';
+          let icon = '🌾';
+
+          if (stop.type === 'START') {
+            bg = 'bg-emerald-600';
+            border = 'border-emerald-200';
+            icon = '🏢';
+          } else if (stop.type === 'END') {
+            bg = 'bg-rose-600';
+            border = 'border-rose-200';
+            icon = '🏁';
+          }
+
+          const stopIcon = L.divIcon({
+            className: 'custom-visited-stop-marker',
+            html: `
+              <div class="relative flex flex-col items-center group cursor-pointer">
+                <div class="px-2.5 py-1 rounded-xl ${bg} text-white font-black text-[11px] shadow-xl border-2 ${border} flex items-center gap-1.5 whitespace-nowrap transform transition-transform hover:scale-110">
+                  <span>${icon}</span>
+                  <span>${stop.name}</span>
+                </div>
+                <div class="w-2.5 h-2.5 ${bg} transform rotate-45 -mt-1.5 border-r-2 border-b-2 ${border}"></div>
+              </div>
+            `,
+            iconSize: [140, 36],
+            iconAnchor: [70, 36],
+          });
+
+          const timeStr = stop.arrivedAt
+            ? new Date(stop.arrivedAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+            : '';
+
+          const stopMarker = L.marker([stop.latitude, stop.longitude], { icon: stopIcon }).bindPopup(`
+            <div class="p-2 text-slate-800 text-xs min-w-[210px]">
+              <div class="flex items-center gap-2 pb-1.5 border-b border-slate-200">
+                <span class="text-base">${icon}</span>
+                <h4 class="font-extrabold text-sm text-slate-900">${stop.name}</h4>
+              </div>
+              <div class="mt-2 space-y-1 text-[11px]">
+                <p><strong>Yetib kelgan vaqt:</strong> ${timeStr}</p>
+                ${stop.durationMinutes > 0 ? `<p><strong>Dala / maskanda turgan vaqti:</strong> <span class="text-amber-700 font-bold">${stop.durationMinutes} daqiqa</span></p>` : ''}
+                <p><strong>Hudud:</strong> ${stop.district || 'Bandixon tumani'}</p>
+                <p class="text-[10px] text-slate-400 font-mono mt-1">GPS: ${stop.latitude.toFixed(5)}, ${stop.longitude.toFixed(5)}</p>
+              </div>
+            </div>
+          `);
+
+          routeLayerRef.current.addLayer(stopMarker);
+        });
+      }
+
       // Fit bounds ONLY ONCE when a new route is loaded
       if (coords.length > 0 && !hasFittedRouteRef.current) {
         hasFittedRouteRef.current = true;
@@ -309,7 +379,7 @@ export default function MapView({
     };
 
     renderRoute();
-  }, [routePoints]);
+  }, [routePoints, visitedStops]);
 
   // Render Geofences
   useEffect(() => {
