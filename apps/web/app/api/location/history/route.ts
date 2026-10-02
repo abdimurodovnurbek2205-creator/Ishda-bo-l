@@ -14,10 +14,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'employeeId talab qilinadi' }, { status: 400 });
   }
 
-  let locations = storeService.getEmployeeLocations(employeeId, date);
-  if (locations.length === 0) {
-    locations = storeService.getEmployeeLocations(employeeId);
-  }
+  const locations = storeService.getEmployeeLocations(employeeId, date);
   const employee = storeService.getEmployeeById(employeeId);
   const totalDistanceKm = calculateTotalRouteDistance(locations);
   const stops = detectVisitedStops(locations);
