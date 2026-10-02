@@ -209,6 +209,14 @@
       "endedAt": "2026-09-23T10:15:00.000Z",
       "endLatitude": 37.8425,
       "endLongitude": 67.3779
+    },
+    {
+      "id": "ws-orozov-today",
+      "employeeId": "emp-orozov",
+      "startedAt": "2026-10-02T03:45:00.000Z",
+      "startLatitude": 37.842429,
+      "startLongitude": 67.377811,
+      "status": "ACTIVE"
     }
   ],
   "locations": [
@@ -380,6 +388,19 @@
       "district": "Bandixon tumani (Bo‘lim markazi)",
       "timestamp": "2026-09-23T10:15:00.000Z",
       "createdAt": "2026-09-23T10:15:00.000Z"
+    },
+    {
+      "id": "loc-orozov-today-1",
+      "employeeId": "emp-orozov",
+      "latitude": 37.842429,
+      "longitude": 67.377811,
+      "accuracy": 5,
+      "speed": 0,
+      "heading": 0,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani (Bo‘lim binosi)",
+      "timestamp": "2026-10-02T10:40:00.000Z",
+      "createdAt": "2026-10-02T03:45:00.000Z"
     }
   ],
   "geofences": [

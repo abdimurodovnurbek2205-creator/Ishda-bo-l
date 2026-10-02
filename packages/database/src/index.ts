@@ -356,6 +356,36 @@ class MemoryDatabase {
       createdAt: new Date().toISOString(),
     };
     this.geofences.set(gf1.id, gf1);
+
+    // Active Work Session for today: O'rozov Isomiddin (Davlat inspektori)
+    const todayMorning = new Date();
+    todayMorning.setUTCHours(3, 45, 0, 0); // 08:45 AM Tashkent time
+
+    const wsOrozov: WorkSession = {
+      id: 'ws-orozov-today',
+      employeeId: 'emp-orozov',
+      startedAt: todayMorning.toISOString(),
+      startLatitude: 37.842429,
+      startLongitude: 67.377811,
+      status: 'ACTIVE',
+    };
+    this.workSessions.set(wsOrozov.id, wsOrozov);
+
+    // Initial check-in location at the office (Bandixon bo'lim binosi)
+    const orozovStartPoint: LocationPoint = {
+      id: 'loc-orozov-today-1',
+      employeeId: 'emp-orozov',
+      latitude: 37.842429,
+      longitude: 67.377811,
+      accuracy: 5,
+      speed: 0,
+      heading: 0,
+      region: 'Surxondaryo viloyati',
+      district: 'Bandixon tumani (Bo‘lim binosi)',
+      timestamp: new Date(Date.now() - 30000).toISOString(),
+      createdAt: todayMorning.toISOString(),
+    };
+    this.locations.push(orozovStartPoint);
   }
 }
 
