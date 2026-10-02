@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Shield, Lock, Mail, ArrowRight } from 'lucide-react';
+import { DedicatedWorkerIcon } from '@/components/DedicatedWorkerIcon';
 
 function OneIdLogoSvg({ className = "h-6 w-auto" }: { className?: string }) {
   return (
@@ -187,8 +188,8 @@ export default function LoginPage() {
         {/* Header */}
         <div className="bg-gradient-to-br from-sky-600/90 via-sky-700/90 to-blue-800/90 p-7 text-white text-center relative overflow-hidden backdrop-blur-md">
           <div className="absolute inset-0 bg-white/5 pointer-events-none" />
-          <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md mx-auto flex items-center justify-center mb-3 shadow-inner border border-white/20">
-            <Shield className="w-6 h-6 text-white" />
+          <div className="flex justify-center mb-3">
+            <DedicatedWorkerIcon size="lg" showTooltip={false} />
           </div>
           <h2 className="text-lg font-black tracking-wider">BANDIXON MONITORING</h2>
           <p className="text-[11px] text-sky-100/90 mt-1 font-medium">Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi</p>

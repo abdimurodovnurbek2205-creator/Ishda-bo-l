@@ -38,6 +38,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { EmployeeDashboardView } from '@/components/EmployeeDashboardView';
 import { EmployeeDrawer } from '@/components/EmployeeDrawer';
+import { DedicatedWorkerIcon } from '@/components/DedicatedWorkerIcon';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -231,9 +232,18 @@ export default function DashboardPage() {
                   </span>
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-sky-100 to-sky-300 bg-clip-text text-transparent">
-                  Bandixon Tumani GPS Nazorat Markazi
-                </h1>
+                <div className="flex items-center gap-4 pt-1">
+                  <DedicatedWorkerIcon size="lg" variant="avatar" />
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-sky-100 to-sky-300 bg-clip-text text-transparent">
+                      Bandixon Tumani GPS Nazorat Markazi
+                    </h1>
+                    <p className="text-[11px] text-sky-300 font-semibold flex items-center gap-1.5 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      Har qanday ob-havoda o‘z xizmatida — "Ishda bo‘l" timsoli
+                    </p>
+                  </div>
+                </div>
 
                 <p className="text-sky-100/90 text-xs sm:text-sm leading-relaxed font-normal">
                   Surxondaryo viloyati bo‘yicha O‘simliklar karantini va himoyasi bo‘limi xodimlarining ish vaqti,

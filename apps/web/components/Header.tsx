@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { User, LogOut, Radio, Globe, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { DedicatedWorkerIcon } from './DedicatedWorkerIcon';
 
 interface HeaderProps {
   title?: string;
@@ -43,6 +44,9 @@ export function Header({ title = 'Bosh sahifa' }: HeaderProps) {
   return (
     <header className="h-16 bg-white/70 backdrop-blur-xl border-b border-white/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-[0_4px_25px_rgba(2,132,199,0.06)]">
       <div className="flex items-center gap-3">
+        <div className="md:hidden">
+          <DedicatedWorkerIcon size="sm" showTooltip={false} />
+        </div>
         <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">{title}</h2>
         <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-800 border border-emerald-300/60 shadow-2xs backdrop-blur-md">
           <span className="relative flex h-2 w-2">
