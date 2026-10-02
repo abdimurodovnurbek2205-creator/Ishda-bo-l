@@ -361,7 +361,24 @@ export const storeService = {
           latestLoc = todayLocs[todayLocs.length - 1];
           todayDistanceKm = calculateTotalRouteDistance(todayLocs);
         } else {
-          latestLoc = null;
+          const allLocs = this.getEmployeeLocations(emp.id);
+          if (allLocs.length > 0) {
+            latestLoc = allLocs[allLocs.length - 1];
+          } else {
+            latestLoc = {
+              id: `loc-default-${emp.id}`,
+              employeeId: emp.id,
+              latitude: 37.842429,
+              longitude: 67.377811,
+              accuracy: 10,
+              speed: 0,
+              heading: 0,
+              region: 'Surxondaryo viloyati',
+              district: 'Bandixon tumani (Bo‘lim)',
+              timestamp: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+            };
+          }
           todayDistanceKm = 0;
         }
       }

@@ -97,8 +97,8 @@
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Bo‘lim boshlig‘i",
       "isTrackingEnabled": false,
-      "workingHoursStart": "08:00",
-      "workingHoursEnd": "17:00",
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
     },
@@ -109,8 +109,8 @@
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Prognoz bo‘yicha yetakchi mutaxassis",
       "isTrackingEnabled": true,
-      "workingHoursStart": "08:00",
-      "workingHoursEnd": "17:00",
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
     },
@@ -121,8 +121,8 @@
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Akt bo‘yicha yetakchi mutaxassis",
       "isTrackingEnabled": true,
-      "workingHoursStart": "08:00",
-      "workingHoursEnd": "17:00",
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
     },
@@ -133,8 +133,8 @@
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Davlat inspektori",
       "isTrackingEnabled": true,
-      "workingHoursStart": "08:00",
-      "workingHoursEnd": "17:00",
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
     },
@@ -145,8 +145,8 @@
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Davlat inspektori",
       "isTrackingEnabled": true,
-      "workingHoursStart": "08:00",
-      "workingHoursEnd": "17:00",
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
     },
@@ -157,8 +157,8 @@
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Davlat inspektori",
       "isTrackingEnabled": true,
-      "workingHoursStart": "08:00",
-      "workingHoursEnd": "17:00",
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
     },
@@ -169,8 +169,8 @@
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Davlat inspektori",
       "isTrackingEnabled": true,
-      "workingHoursStart": "08:00",
-      "workingHoursEnd": "17:00",
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
     },
@@ -181,8 +181,8 @@
       "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
       "position": "Davlat inspektori",
       "isTrackingEnabled": true,
-      "workingHoursStart": "08:00",
-      "workingHoursEnd": "17:00",
+      "workingHoursStart": "09:00",
+      "workingHoursEnd": "18:00",
       "createdAt": "2026-09-21T09:00:00.000Z",
       "updatedAt": "2026-09-21T09:00:00.000Z"
     }
@@ -209,6 +209,14 @@
       "endedAt": "2026-09-23T10:15:00.000Z",
       "endLatitude": 37.8425,
       "endLongitude": 67.3779
+    },
+    {
+      "id": "ws-orozov-today",
+      "employeeId": "emp-orozov",
+      "startedAt": "2026-10-02T03:45:00.000Z",
+      "startLatitude": 37.842429,
+      "startLongitude": 67.377811,
+      "status": "ACTIVE"
     }
   ],
   "locations": [
@@ -380,6 +388,97 @@
       "district": "Bandixon tumani (Bo‘lim markazi)",
       "timestamp": "2026-09-23T10:15:00.000Z",
       "createdAt": "2026-09-23T10:15:00.000Z"
+    },
+    {
+      "id": "loc-orozov-today-1",
+      "employeeId": "emp-orozov",
+      "latitude": 37.842429,
+      "longitude": 67.377811,
+      "accuracy": 5,
+      "speed": 0,
+      "heading": 0,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani (Bo‘lim binosi)",
+      "timestamp": "2026-10-02T03:45:00.000Z",
+      "createdAt": "2026-10-02T03:45:00.000Z"
+    },
+    {
+      "id": "loc-orozov-today-2",
+      "employeeId": "emp-orozov",
+      "latitude": 37.8475,
+      "longitude": 67.3842,
+      "accuracy": 6,
+      "speed": 22,
+      "heading": 40,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani (Limonchilik issiqxona majmuasi)",
+      "timestamp": "2026-10-02T04:30:00.000Z",
+      "createdAt": "2026-10-02T04:30:00.000Z"
+    },
+    {
+      "id": "loc-orozov-today-3",
+      "employeeId": "emp-orozov",
+      "latitude": 37.8542,
+      "longitude": 67.3985,
+      "accuracy": 8,
+      "speed": 15,
+      "heading": 55,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani (Bektepa MFY bog‘dorchilik dalalari)",
+      "timestamp": "2026-10-02T05:15:00.000Z",
+      "createdAt": "2026-10-02T05:15:00.000Z"
+    },
+    {
+      "id": "loc-orozov-today-4",
+      "employeeId": "emp-orozov",
+      "latitude": 37.8630,
+      "longitude": 67.4110,
+      "accuracy": 5,
+      "speed": 18,
+      "heading": 30,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani (Chorvador MFY fitonazorat posti)",
+      "timestamp": "2026-10-02T06:25:00.000Z",
+      "createdAt": "2026-10-02T06:25:00.000Z"
+    },
+    {
+      "id": "loc-orozov-today-5",
+      "employeeId": "emp-orozov",
+      "latitude": 37.8510,
+      "longitude": 67.4230,
+      "accuracy": 7,
+      "speed": 20,
+      "heading": 120,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani (Poliz va g‘allachilik fermer xo‘jaligi)",
+      "timestamp": "2026-10-02T07:45:00.000Z",
+      "createdAt": "2026-10-02T07:45:00.000Z"
+    },
+    {
+      "id": "loc-orozov-today-6",
+      "employeeId": "emp-orozov",
+      "latitude": 37.8445,
+      "longitude": 67.3910,
+      "accuracy": 5,
+      "speed": 24,
+      "heading": 230,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani (Markaziy agrologistika yo‘nalishi)",
+      "timestamp": "2026-10-02T09:05:00.000Z",
+      "createdAt": "2026-10-02T09:05:00.000Z"
+    },
+    {
+      "id": "loc-orozov-today-7",
+      "employeeId": "emp-orozov",
+      "latitude": 37.8432,
+      "longitude": 67.3805,
+      "accuracy": 4,
+      "speed": 0,
+      "heading": 180,
+      "region": "Surxondaryo viloyati",
+      "district": "Bandixon tumani (Fitosanitar laboratoriya va karantin punkti)",
+      "timestamp": "2026-10-02T10:05:00.000Z",
+      "createdAt": "2026-10-02T10:05:00.000Z"
     }
   ],
   "geofences": [

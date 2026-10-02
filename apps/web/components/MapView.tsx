@@ -129,18 +129,21 @@ export default function MapView({
       markersGroupRef.current.clearLayers();
 
       employees.forEach((emp) => {
-        if (!emp.latestLocation || emp.status === 'NOT_WORKING') return;
+        if (!emp.latestLocation) return;
 
         const { latitude, longitude } = emp.latestLocation;
-        let colorClass = 'bg-emerald-500 border-white text-white';
-        let statusBadge = 'Ishda';
+        let colorClass = 'bg-emerald-500 border-white text-white shadow-emerald-500/40';
+        let statusBadge = 'Ishda (Jonli)';
 
         if (emp.status === 'DELAYED') {
-          colorClass = 'bg-amber-500 border-white text-white';
+          colorClass = 'bg-amber-500 border-white text-white shadow-amber-500/40';
           statusBadge = 'Kechikmoqda';
         } else if (emp.status === 'OFFLINE') {
-          colorClass = 'bg-rose-500 border-white text-white';
-          statusBadge = 'Offline';
+          colorClass = 'bg-rose-500 border-white text-white shadow-rose-500/40';
+          statusBadge = 'Offline (Dala)';
+        } else if (emp.status === 'NOT_WORKING') {
+          colorClass = 'bg-slate-500 border-white text-white shadow-slate-500/40';
+          statusBadge = 'Nofaol / Yakunlangan';
         }
 
         const isSelected = emp.employeeId === selectedEmployeeId;

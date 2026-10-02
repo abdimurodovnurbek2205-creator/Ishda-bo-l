@@ -66,9 +66,10 @@ export function EmployeeDashboardView({ user, employee }: EmployeeDashboardViewP
     fetch(`/api/work-sessions?employeeId=${employee.id}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.session) {
-          setActiveSession(data.session);
-          offlineSyncManager.saveSession(employee.id, data.session);
+        const found = data?.session || (Array.isArray(data) ? data.find((s: any) => s.employeeId === employee.id && s.status === 'ACTIVE') : null);
+        if (found) {
+          setActiveSession(found);
+          offlineSyncManager.saveSession(employee.id, found);
         } else if (localSession && before18) {
           // If server restarted but local session is active for today before 18:00, re-sync with server!
           fetch('/api/work-sessions/start', {

@@ -24,17 +24,23 @@ class MemoryDatabase {
   getDbFilePath() {
     const path = require('path');
     const fs = require('fs');
-    let cwd = process.cwd();
-    if (cwd.endsWith('apps\\web') || cwd.endsWith('apps/web')) {
-      cwd = path.resolve(cwd, '../..');
+    let dir = process.cwd();
+    for (let i = 0; i < 4; i++) {
+      const candidateDir = path.join(dir, 'packages/database/data');
+      if (fs.existsSync(candidateDir)) {
+        return path.join(candidateDir, 'db_store.json');
+      }
+      if (fs.existsSync(path.join(dir, 'packages/database'))) {
+        try {
+          fs.mkdirSync(candidateDir, { recursive: true });
+        } catch (e) {}
+        return path.join(candidateDir, 'db_store.json');
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
     }
-    const dir = path.join(cwd, 'packages/database/data');
-    if (!fs.existsSync(dir)) {
-      try {
-        fs.mkdirSync(dir, { recursive: true });
-      } catch (e) {}
-    }
-    return path.join(dir, 'db_store.json');
+    return path.join(process.cwd(), 'db_store.json');
   }
 
   loadFromFile() {
@@ -351,6 +357,119 @@ class MemoryDatabase {
     };
     this.geofences.set(gf1.id, gf1);
 
+    // Seed Active Work Session for today: O'rozov Isomiddin (Davlat inspektori)
+    const todayMorning = new Date();
+    todayMorning.setUTCHours(3, 45, 0, 0); // 08:45 AM Tashkent time
+
+    const wsOrozov: WorkSession = {
+      id: 'ws-orozov-today',
+      employeeId: 'emp-orozov',
+      startedAt: todayMorning.toISOString(),
+      startLatitude: 37.842429,
+      startLongitude: 67.377811,
+      status: 'ACTIVE',
+    };
+    this.workSessions.set(wsOrozov.id, wsOrozov);
+
+    // Today's agricultural inspection route & visited stops in Bandixon tumani
+    const nowMs = Date.now();
+    const orozovPoints: LocationPoint[] = [
+      {
+        id: 'loc-orozov-today-1',
+        employeeId: 'emp-orozov',
+        latitude: 37.842429,
+        longitude: 67.377811,
+        accuracy: 5,
+        speed: 0,
+        heading: 0,
+        region: 'Surxondaryo viloyati',
+        district: 'Bandixon tumani (Bo‘lim binosi)',
+        timestamp: new Date(todayMorning.getTime()).toISOString(),
+        createdAt: new Date(todayMorning.getTime()).toISOString(),
+      },
+      {
+        id: 'loc-orozov-today-2',
+        employeeId: 'emp-orozov',
+        latitude: 37.8475,
+        longitude: 67.3842,
+        accuracy: 6,
+        speed: 22,
+        heading: 40,
+        region: 'Surxondaryo viloyati',
+        district: 'Bandixon tumani (Limonchilik issiqxona majmuasi)',
+        timestamp: new Date(todayMorning.getTime() + 45 * 60000).toISOString(),
+        createdAt: new Date(todayMorning.getTime() + 45 * 60000).toISOString(),
+      },
+      {
+        id: 'loc-orozov-today-3',
+        employeeId: 'emp-orozov',
+        latitude: 37.8542,
+        longitude: 67.3985,
+        accuracy: 8,
+        speed: 15,
+        heading: 55,
+        region: 'Surxondaryo viloyati',
+        district: 'Bandixon tumani (Bektepa MFY bog‘dorchilik dalalari)',
+        timestamp: new Date(todayMorning.getTime() + 90 * 60000).toISOString(),
+        createdAt: new Date(todayMorning.getTime() + 90 * 60000).toISOString(),
+      },
+      {
+        id: 'loc-orozov-today-4',
+        employeeId: 'emp-orozov',
+        latitude: 37.8630,
+        longitude: 67.4110,
+        accuracy: 5,
+        speed: 18,
+        heading: 30,
+        region: 'Surxondaryo viloyati',
+        district: 'Bandixon tumani (Chorvador MFY fitonazorat posti)',
+        timestamp: new Date(todayMorning.getTime() + 160 * 60000).toISOString(),
+        createdAt: new Date(todayMorning.getTime() + 160 * 60000).toISOString(),
+      },
+      {
+        id: 'loc-orozov-today-5',
+        employeeId: 'emp-orozov',
+        latitude: 37.8510,
+        longitude: 67.4230,
+        accuracy: 7,
+        speed: 20,
+        heading: 120,
+        region: 'Surxondaryo viloyati',
+        district: 'Bandixon tumani (Poliz va g‘allachilik fermer xo‘jaligi)',
+        timestamp: new Date(todayMorning.getTime() + 240 * 60000).toISOString(),
+        createdAt: new Date(todayMorning.getTime() + 240 * 60000).toISOString(),
+      },
+      {
+        id: 'loc-orozov-today-6',
+        employeeId: 'emp-orozov',
+        latitude: 37.8445,
+        longitude: 67.3910,
+        accuracy: 5,
+        speed: 24,
+        heading: 230,
+        region: 'Surxondaryo viloyati',
+        district: 'Bandixon tumani (Markaziy agrologistika yo‘nalishi)',
+        timestamp: new Date(todayMorning.getTime() + 320 * 60000).toISOString(),
+        createdAt: new Date(todayMorning.getTime() + 320 * 60000).toISOString(),
+      },
+      {
+        id: 'loc-orozov-today-7',
+        employeeId: 'emp-orozov',
+        latitude: 37.8432,
+        longitude: 67.3805,
+        accuracy: 4,
+        speed: 0,
+        heading: 180,
+        region: 'Surxondaryo viloyati',
+        district: 'Bandixon tumani (Fitosanitar laboratoriya va karantin punkti)',
+        timestamp: new Date(Math.max(todayMorning.getTime() + 360 * 60000, nowMs - 45000)).toISOString(),
+        createdAt: new Date(Math.max(todayMorning.getTime() + 360 * 60000, nowMs - 45000)).toISOString(),
+      },
+    ];
+
+    for (const p of orozovPoints) {
+      this.locations.push(p);
+    }
   }
 }
 
