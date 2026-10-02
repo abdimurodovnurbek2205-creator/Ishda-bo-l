@@ -96,22 +96,22 @@ function LoginFormContent() {
   };
 
   return (
-    <div className="p-6 space-y-5 text-xs">
+    <div className="p-7 space-y-5 text-xs">
       {error && (
-        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 font-semibold text-center">
+        <div className="p-3.5 rounded-xl bg-rose-50/80 border border-rose-200/80 backdrop-blur-sm text-rose-700 font-semibold text-center text-xs shadow-sm">
           {error}
         </div>
       )}
 
-      {/* 1. Regular Login Form (First) */}
+      {/* 1. Regular Login Form */}
       <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
         <input type="text" name="prevent_autofill_user" style={{ display: 'none' }} tabIndex={-1} />
         <input type="password" name="prevent_autofill_pass" style={{ display: 'none' }} tabIndex={-1} />
 
         <div>
-          <label className="block font-bold text-slate-700 mb-1">Telefon Raqamingiz</label>
+          <label className="block font-bold text-slate-700 mb-1.5 text-xs">Telefon Raqamingiz</label>
           <div className="relative">
-            <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             <input
               type="text"
               required
@@ -119,15 +119,15 @@ function LoginFormContent() {
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               placeholder="+998901234567"
-              className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
+              className="w-full pl-10 pr-3.5 py-2.5 bg-white/70 backdrop-blur-sm border border-slate-200/80 rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 focus:outline-none transition-all text-xs"
             />
           </div>
         </div>
 
         <div>
-          <label className="block font-bold text-slate-700 mb-1">Parolingiz</label>
+          <label className="block font-bold text-slate-700 mb-1.5 text-xs">Parolingiz</label>
           <div className="relative">
-            <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             <input
               type="password"
               required
@@ -135,7 +135,7 @@ function LoginFormContent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="******"
-              className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
+              className="w-full pl-10 pr-3.5 py-2.5 bg-white/70 backdrop-blur-sm border border-slate-200/80 rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 focus:outline-none transition-all text-xs"
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ function LoginFormContent() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm cursor-pointer"
+          className="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-sky-600/25 active:scale-[0.99] cursor-pointer text-xs"
         >
           {loading ? 'Tekshirilmoqda...' : 'Tizimga Kirish'}
           <ArrowRight className="w-4 h-4" />
@@ -152,18 +152,18 @@ function LoginFormContent() {
 
       {/* Divider */}
       <div className="relative flex py-1 items-center">
-        <div className="flex-grow border-t border-slate-200"></div>
+        <div className="flex-grow border-t border-slate-200/80"></div>
         <span className="flex-shrink mx-3 text-slate-400 font-semibold text-[10px] uppercase tracking-wider">
           Yoki
         </span>
-        <div className="flex-grow border-t border-slate-200"></div>
+        <div className="flex-grow border-t border-slate-200/80"></div>
       </div>
 
-      {/* 2. Official OneID Login Link (Native <a> tag to ensure reliable cross-device navigation) */}
+      {/* 2. Official OneID Login Link */}
       <div>
         <a
           href="/api/auth/oneid/login"
-          className="w-full bg-white hover:bg-slate-50 active:scale-[0.99] text-[#002C6C] font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-3 shadow-md transition-all cursor-pointer border-2 border-[#002C6C]/40 hover:border-[#002C6C] text-decoration-none"
+          className="w-full bg-white/90 hover:bg-white active:scale-[0.99] text-[#002C6C] font-extrabold py-3 px-4 rounded-xl flex items-center justify-center gap-3 shadow-md shadow-sky-950/5 transition-all cursor-pointer border-2 border-[#002C6C]/30 hover:border-[#002C6C] text-decoration-none backdrop-blur-sm"
         >
           <div className="bg-[#002C6C]/5 p-1 rounded-lg flex items-center justify-center border border-[#002C6C]/10">
             <OneIdLogoSvg className="h-6 w-auto shrink-0" />
@@ -177,15 +177,21 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-glass-pattern">
+      {/* Ambient background glow orbs */}
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-sky-300/30 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-cyan-300/30 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-blue-200/20 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <div className="glass-panel rounded-3xl shadow-2xl shadow-sky-950/10 max-w-md w-full overflow-hidden border border-white/80 backdrop-blur-xl relative">
         {/* Header */}
-        <div className="bg-gradient-to-r from-sky-600 to-sky-800 p-6 text-white text-center">
-          <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur mx-auto flex items-center justify-center mb-3">
-            <Shield className="w-7 h-7 text-white" />
+        <div className="bg-gradient-to-br from-sky-600/90 via-sky-700/90 to-blue-800/90 p-7 text-white text-center relative overflow-hidden backdrop-blur-md">
+          <div className="absolute inset-0 bg-white/5 pointer-events-none" />
+          <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md mx-auto flex items-center justify-center mb-3 shadow-inner border border-white/20">
+            <Shield className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-xl font-bold">BANDIXON MONITORING</h2>
-          <p className="text-xs text-sky-100 mt-1">Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi</p>
+          <h2 className="text-lg font-black tracking-wider">BANDIXON MONITORING</h2>
+          <p className="text-[11px] text-sky-100/90 mt-1 font-medium">Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi</p>
         </div>
 
         <Suspense fallback={<div className="p-6 text-center text-xs text-slate-500">Yuklanmoqda...</div>}>

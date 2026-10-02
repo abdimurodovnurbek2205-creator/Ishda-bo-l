@@ -6,15 +6,18 @@ import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { EmployeeDrawer } from '@/components/EmployeeDrawer';
 import { EmployeeLiveSummary } from '@repo/types';
-import { RefreshCw, Radio, Layers, Filter } from 'lucide-react';
+import { RefreshCw, Radio, Layers, Filter, MapPin, Users, Activity, Clock } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
 // Dynamically import MapView to disable SSR for Leaflet map
 const MapView = dynamic(() => import('@/components/MapView'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-500 font-medium">
-      Xarita yuklanmoqda...
+    <div className="w-full h-full flex items-center justify-center bg-sky-50/50 text-slate-500 font-bold text-xs">
+      <div className="flex items-center gap-2 p-4 rounded-2xl glass-panel shadow-lg">
+        <RefreshCw className="w-4 h-4 animate-spin text-sky-600" />
+        <span>Xarita yuklanmoqda...</span>
+      </div>
     </div>
   ),
 });
@@ -69,23 +72,32 @@ function LiveMapContent() {
     };
   }, []);
 
+  const workingCount = employees.filter((e) => e.status === 'WORKING').length;
+  const offlineCount = employees.filter((e) => e.status === 'NOT_WORKING' || e.status === 'OFFLINE').length;
+
   return (
     <div className="flex-1 relative w-full h-full">
-      {/* Map Controls Floating Bar */}
-      <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur border border-slate-200 shadow-md rounded-xl p-3 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-700">
-        <div className="flex items-center gap-1.5 text-emerald-700">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          Ishda ({employees.filter(e => e.status === 'WORKING').length} kishi)
+      {/* Floating Glass Island Controls */}
+      <div className="absolute top-4 left-4 z-20 glass-panel rounded-2xl p-2.5 sm:p-3 flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-bold text-slate-800 shadow-xl border border-white/85">
+        <div className="flex items-center gap-2 text-emerald-800 px-2 py-1 rounded-xl bg-emerald-500/10 border border-emerald-200/60">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>Ishda ({workingCount} kishi)</span>
         </div>
-        <div className="flex items-center gap-1.5 text-slate-500 border-l pl-3 border-slate-200">
-          Ishda emas ({employees.filter(e => e.status === 'NOT_WORKING').length} kishi)
+
+        <div className="flex items-center gap-1.5 text-slate-600 px-2 py-1 rounded-xl bg-slate-100/80 border border-slate-200/60">
+          <Clock className="w-3.5 h-3.5 text-slate-400" />
+          <span>Ishda emas ({offlineCount} kishi)</span>
         </div>
+
         <button
           onClick={fetchLive}
-          className="ml-auto p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
-          title="Yangilash"
+          className="ml-auto p-2 text-sky-700 hover:text-white bg-sky-500/10 hover:bg-sky-600 rounded-xl transition-all duration-200 border border-sky-200/60 active:scale-95 shadow-2xs cursor-pointer"
+          title="Xaritani yangilash"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
@@ -107,12 +119,16 @@ function LiveMapContent() {
 
 export default function LiveMapPage() {
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen overflow-hidden relative">
+      {/* Ambient orbs */}
+      <div className="fixed top-10 right-20 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-sky-400/20 to-blue-500/10 blur-3xl pointer-events-none -z-10" />
+      <div className="fixed bottom-10 left-64 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-cyan-400/20 to-teal-300/15 blur-3xl pointer-events-none -z-10" />
+
       <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         <Header title="Jonli Xarita (Live GPS Map)" />
-        <Suspense fallback={<div className="p-4 text-xs text-slate-500">Yuklanmoqda...</div>}>
+        <Suspense fallback={<div className="p-4 text-xs text-slate-500 font-bold">Yuklanmoqda...</div>}>
           <LiveMapContent />
         </Suspense>
       </div>
