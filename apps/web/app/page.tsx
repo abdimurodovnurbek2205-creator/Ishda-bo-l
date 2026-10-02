@@ -233,7 +233,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-4 pt-1">
-                  <DedicatedWorkerIcon size="lg" variant="avatar" />
+                  <DedicatedWorkerIcon size="lg" />
                   <div>
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight bg-gradient-to-r from-white via-sky-100 to-sky-300 bg-clip-text text-transparent">
                       Bandixon Tumani GPS Nazorat Markazi

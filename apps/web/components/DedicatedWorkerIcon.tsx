@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 interface DedicatedWorkerIconProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'avatar' | 'full';
   className?: string;
   showTooltip?: boolean;
 }
@@ -13,6 +14,7 @@ type WeatherType = 'SUNNY' | 'RAINY' | 'SNOWY';
 
 export function DedicatedWorkerIcon({
   size = 'md',
+  variant = 'full',
   className = '',
   showTooltip = true,
 }: DedicatedWorkerIconProps) {
@@ -171,7 +173,7 @@ export function DedicatedWorkerIcon({
           {/* Walking Bob Motion */}
           <div className="relative h-[85%] w-auto flex flex-col items-center justify-end animate-worker-walk">
             <Image
-              src="/worker-transparent.png"
+              src={variant === 'avatar' ? '/worker-avatar.png' : '/worker-transparent.png'}
               alt="Ishga borayotgan xodim (Boshdan oyoqqacha)"
               width={264}
               height={466}
