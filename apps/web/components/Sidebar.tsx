@@ -36,17 +36,20 @@ export function Sidebar() {
       {/* Header Logo */}
       <Link
         href="/"
-        className="p-3.5 border-b border-sky-500/20 flex items-center gap-3 group cursor-pointer hover:bg-white/5 transition-all text-decoration-none"
+        className="p-3 border-b border-sky-500/20 flex items-center gap-3 group cursor-pointer hover:bg-white/5 transition-all text-decoration-none"
       >
         <DedicatedWorkerIcon size="md" />
         <div className="overflow-hidden">
-          <h1 className="font-black text-sm tracking-tight leading-tight text-white group-hover:text-sky-300 transition-colors">
+          <h1 className="font-black text-xs sm:text-sm tracking-tight leading-tight text-white group-hover:text-sky-300 transition-colors">
             BANDIXON MONITORING
           </h1>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <p className="text-[11px] text-sky-400 font-bold tracking-wide truncate">GPS Nazorat Tizimi</p>
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <p className="text-[10px] text-sky-400 font-bold tracking-wide truncate">GPS Nazorat Tizimi</p>
           </div>
+          <span className="inline-block mt-0.5 text-[9px] text-sky-200/70 font-medium tracking-tight">
+            Har ob-havoda xizmatda
+          </span>
         </div>
       </Link>
 
