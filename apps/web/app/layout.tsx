@@ -20,7 +20,7 @@ export default function RootLayout({
           crossOrigin=""
         />
       </head>
-      <body className="bg-slate-50 text-slate-900 antialiased font-sans">
+      <body className="bg-glass-pattern min-h-screen text-slate-900 antialiased font-sans">
         {children}
       </body>
     </html>
