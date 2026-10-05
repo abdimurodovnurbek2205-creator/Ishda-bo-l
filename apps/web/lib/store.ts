@@ -15,7 +15,13 @@ import { detectUzbekistanDistrict } from './uzbekistan-geocoder';
 import { calculateTotalRouteDistance, haversineDistanceKm } from './distance';
 import { checkGeofenceTransitions } from './geofence';
 
-import { getUzbekistanDateString } from './date-utils';
+import {
+  getUzbekistanDateString,
+  isWeekend,
+  getKnownHolidayUz,
+  getDayOfWeekUz,
+  getDaysInMonth,
+} from './date-utils';
 
 export const storeService = {
   // 1. Auth & Users
@@ -420,20 +426,49 @@ export const storeService = {
     const allRecords = Array.from(dbStore.timesheets.values()).filter((r) => r.date === date);
     const employees = this.getAllEmployees();
 
+    const weekend = isWeekend(date);
+    const holidayName = getKnownHolidayUz(date);
+    const dayName = getDayOfWeekUz(date).full;
+
     if (allRecords.length === 0) {
       // Create initial drafted records for all employees
       const newRecords: DailyTimesheetRecord[] = employees.map((emp) => {
-        // Check if employee has a work session for this date
+        // Check if employee has an active work session for this date
         const empSessions = Array.from(dbStore.workSessions.values()).filter(
           (s) => s.employeeId === emp.id && s.startedAt.startsWith(date)
         );
         const session = empSessions[0];
-        const checkIn = session
-          ? new Date(session.startedAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
-          : '09:00';
-        const checkOut = session?.endedAt
-          ? new Date(session.endedAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
-          : '18:00';
+
+        let status: AttendanceStatus = 'PRESENT';
+        let checkIn = '09:00';
+        let checkOut = '18:00';
+        let workHours = 8.0;
+        let reason = '';
+        let hourlyLog = '';
+
+        if (holidayName) {
+          status = 'DAY_OFF';
+          checkIn = '';
+          checkOut = '';
+          workHours = 0;
+          reason = `Bayram kuni: ${holidayName}`;
+          hourlyLog = `Rasmiy bayram - Dam olish kuni (${holidayName})`;
+        } else if (weekend) {
+          status = 'DAY_OFF';
+          checkIn = '';
+          checkOut = '';
+          workHours = 0;
+          reason = `${dayName} - Dam olish kuni`;
+          hourlyLog = `${dayName} - Dam olish kuni`;
+        } else if (session) {
+          checkIn = new Date(session.startedAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+          checkOut = session?.endedAt
+            ? new Date(session.endedAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+            : '18:00';
+          hourlyLog = `${checkIn} - Ishga kelgan deb belgilandi`;
+        } else {
+          hourlyLog = '09:00 - Ishga kelgan deb belgilandi';
+        }
 
         const recId = `ts-${date}-${emp.id}`;
         const record: DailyTimesheetRecord = {
@@ -444,12 +479,12 @@ export const storeService = {
           employeeCode: emp.employeeCode,
           department: emp.department,
           position: emp.position,
-          status: 'PRESENT',
+          status,
           checkInTime: checkIn,
           checkOutTime: checkOut,
-          workHours: 8.0,
-          reason: '',
-          hourlyLog: `${checkIn} - Ishga kelgan deb belgilandi`,
+          workHours,
+          reason,
+          hourlyLog,
           recordedBy: 'Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)',
           updatedAt: new Date().toISOString(),
         };
@@ -465,6 +500,29 @@ export const storeService = {
     for (const emp of employees) {
       const exists = allRecords.some((r) => r.employeeId === emp.id);
       if (!exists) {
+        let status: AttendanceStatus = 'PRESENT';
+        let checkIn = '09:00';
+        let checkOut = '18:00';
+        let workHours = 8.0;
+        let reason = '';
+        let hourlyLog = '';
+
+        if (holidayName) {
+          status = 'DAY_OFF';
+          checkIn = '';
+          checkOut = '';
+          workHours = 0;
+          reason = `Bayram kuni: ${holidayName}`;
+          hourlyLog = `Rasmiy bayram - Dam olish kuni (${holidayName})`;
+        } else if (weekend) {
+          status = 'DAY_OFF';
+          checkIn = '';
+          checkOut = '';
+          workHours = 0;
+          reason = `${dayName} - Dam olish kuni`;
+          hourlyLog = `${dayName} - Dam olish kuni`;
+        }
+
         const recId = `ts-${date}-${emp.id}`;
         const record: DailyTimesheetRecord = {
           id: recId,
@@ -474,12 +532,12 @@ export const storeService = {
           employeeCode: emp.employeeCode,
           department: emp.department,
           position: emp.position,
-          status: 'PRESENT',
-          checkInTime: '09:00',
-          checkOutTime: '18:00',
-          workHours: 8.0,
-          reason: '',
-          hourlyLog: '09:00 - Ishga kelgan deb belgilandi',
+          status,
+          checkInTime: checkIn,
+          checkOutTime: checkOut,
+          workHours,
+          reason,
+          hourlyLog,
           recordedBy: 'Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)',
           updatedAt: new Date().toISOString(),
         };
@@ -509,8 +567,8 @@ export const storeService = {
       department: record.department || emp?.department || existing?.department || '',
       position: record.position || emp?.position || existing?.position || '',
       status: record.status || existing?.status || 'PRESENT',
-      checkInTime: record.checkInTime !== undefined ? record.checkInTime : (existing?.checkInTime || '09:00'),
-      checkOutTime: record.checkOutTime !== undefined ? record.checkOutTime : (existing?.checkOutTime || '18:00'),
+      checkInTime: record.checkInTime !== undefined ? record.checkInTime : (existing?.checkInTime || ''),
+      checkOutTime: record.checkOutTime !== undefined ? record.checkOutTime : (existing?.checkOutTime || ''),
       workHours: record.workHours !== undefined ? record.workHours : (existing?.workHours ?? 8.0),
       reason: record.reason !== undefined ? record.reason : (existing?.reason || ''),
       hourlyLog: record.hourlyLog !== undefined ? record.hourlyLog : (existing?.hourlyLog || ''),
@@ -529,5 +587,106 @@ export const storeService = {
       results.push(this.saveTimesheetRecord(r));
     }
     return results;
+  },
+
+  // Set an entire day as Holiday or Workday for all employees
+  setDayTypeForDate(date: string, isHolidayOrDayOff: boolean, reasonText?: string): DailyTimesheetRecord[] {
+    const dayRecords = this.getTimesheetByDate(date);
+    const updated = dayRecords.map((r) => {
+      if (isHolidayOrDayOff) {
+        return this.saveTimesheetRecord({
+          ...r,
+          status: 'DAY_OFF',
+          checkInTime: '',
+          checkOutTime: '',
+          workHours: 0,
+          reason: reasonText || 'Bayram / Dam olish kuni',
+        });
+      } else {
+        return this.saveTimesheetRecord({
+          ...r,
+          status: 'PRESENT',
+          checkInTime: '09:00',
+          checkOutTime: '18:00',
+          workHours: 8.0,
+          reason: '',
+        });
+      }
+    });
+    return updated;
+  },
+
+  // 7. Monthly Timesheet Matrix (Sentabr - Dekabr 2026)
+  getTimesheetForMonth(year: number, month: number) {
+    const totalDays = getDaysInMonth(year, month);
+    const employees = this.getAllEmployees().sort((a, b) => a.employeeCode.localeCompare(b.employeeCode));
+
+    const days = [];
+    for (let day = 1; day <= totalDays; day++) {
+      const monthStr = String(month).padStart(2, '0');
+      const dayStr = String(day).padStart(2, '0');
+      const dateStr = `${year}-${monthStr}-${dayStr}`;
+      const weekend = isWeekend(dateStr);
+      const holiday = getKnownHolidayUz(dateStr);
+      const dayOfWeek = getDayOfWeekUz(dateStr);
+
+      // Ensure records exist for this day
+      const dayRecords = this.getTimesheetByDate(dateStr);
+      const firstRec = dayRecords[0];
+      const isCustomHoliday = !weekend && dayRecords.length > 0 && dayRecords.every((r) => r.status === 'DAY_OFF') && Boolean(firstRec?.reason);
+      const customHolidayName = isCustomHoliday ? (firstRec?.reason || 'Dam olish kuni') : null;
+
+      days.push({
+        date: dateStr,
+        dayNumber: day,
+        dayOfWeek: dayOfWeek.short,
+        dayOfWeekFull: dayOfWeek.full,
+        isWeekend: weekend,
+        isHoliday: Boolean(holiday) || isCustomHoliday,
+        holidayName: holiday || customHolidayName,
+      });
+    }
+
+    // Build matrix for each employee
+    const matrix = employees.map((emp) => {
+      const empRecords = days.map((d) => {
+        const recId = `ts-${d.date}-${emp.id}`;
+        return (
+          dbStore.timesheets.get(recId) ||
+          this.saveTimesheetRecord({ employeeId: emp.id, date: d.date })
+        );
+      });
+
+      const totalWorkDays = empRecords.filter(
+        (r) => r.status === 'PRESENT' || r.status === 'LATE' || r.status === 'FIELD_WORK'
+      ).length;
+      const totalWorkHours = empRecords.reduce((sum, r) => sum + (Number(r.workHours) || 0), 0);
+      const totalExcusedDays = empRecords.filter((r) => r.status === 'EXCUSED').length;
+      const totalAbsentDays = empRecords.filter((r) => r.status === 'ABSENT').length;
+      const totalSickDays = empRecords.filter((r) => r.status === 'SICK_LEAVE').length;
+      const totalDaysOff = empRecords.filter((r) => r.status === 'DAY_OFF').length;
+
+      return {
+        employee: emp,
+        records: empRecords,
+        summary: {
+          totalWorkDays,
+          totalWorkHours: Math.round(totalWorkHours * 10) / 10,
+          totalExcusedDays,
+          totalAbsentDays,
+          totalSickDays,
+          totalDaysOff,
+        },
+      };
+    });
+
+    return {
+      year,
+      month,
+      totalDays,
+      days,
+      employees,
+      matrix,
+    };
   },
 };
