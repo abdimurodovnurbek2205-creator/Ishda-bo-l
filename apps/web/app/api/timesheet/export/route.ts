@@ -1,20 +1,24 @@
+import ExcelJS from 'exceljs';
 import { storeService } from '@/lib/store';
 import { getUzbekistanDateString, getMonthNameUz } from '@/lib/date-utils';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'nodejs';
 
-const STATUS_LABELS: Record<string, { label: string; code: string; color: string; bg: string }> = {
-  PRESENT: { label: 'Ishga kelgan', code: '8', color: '#166534', bg: '#dcfce7' },
-  LATE: { label: 'Kechikib kelgan', code: 'Kch', color: '#854d0e', bg: '#fef9c3' },
-  EXCUSED: { label: 'Javob olgan (Ruxsat)', code: 'J', color: '#1e40af', bg: '#dbeafe' },
-  ABSENT: { label: 'Sababsiz kelmagan', code: 'S', color: '#991b1b', bg: '#fee2e2' },
-  FIELD_WORK: { label: 'Xizmat safari (Dalada)', code: 'X', color: '#0f766e', bg: '#ccfbf1' },
-  SICK_LEAVE: { label: 'Kasallik varaqasi', code: 'K', color: '#6b21a8', bg: '#f3e8ff' },
-  DAY_OFF: { label: 'Dam olish kuni', code: 'D', color: '#475569', bg: '#f1f5f9' },
+const BORDER_THIN: Partial<ExcelJS.Borders> = {
+  top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+  left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+  bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+  right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
 };
 
-const DEFAULT_STATUS_INFO = { label: 'Noma‘lum', code: '-', color: '#475569', bg: '#f1f5f9' };
+const BORDER_HEADER: Partial<ExcelJS.Borders> = {
+  top: { style: 'medium', color: { argb: 'FF0369A1' } },
+  left: { style: 'thin', color: { argb: 'FF0284C7' } },
+  bottom: { style: 'medium', color: { argb: 'FF0369A1' } },
+  right: { style: 'thin', color: { argb: 'FF0284C7' } },
+};
 
 function getCellCode(record: any, isHoliday: boolean, isWeekendDay: boolean): string {
   if (!record) return isWeekendDay ? 'D' : '8';
@@ -30,9 +34,53 @@ function getCellCode(record: any, isHoliday: boolean, isWeekendDay: boolean): st
   return isWeekendDay ? 'D' : '8';
 }
 
+function styleAttendanceCell(cell: ExcelJS.Cell, code: string, isHoliday: boolean, isWeekend: boolean) {
+  cell.border = BORDER_THIN;
+  cell.alignment = { horizontal: 'center', vertical: 'middle' };
+  cell.font = { name: 'Calibri', size: 9, bold: true };
+
+  if (code === 'B' || isHoliday) {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF08A' } };
+    cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF854D0E' } };
+  } else if (code === 'D' || isWeekend) {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+    cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF475569' } };
+  } else if (code === '8' || (!isNaN(Number(code)) && Number(code) > 0)) {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCFCE7' } };
+    cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF166534' } };
+  } else if (code === 'Kch') {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } };
+    cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF854D0E' } };
+  } else if (code === 'J') {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+    cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF1E40AF' } };
+  } else if (code === 'S') {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
+    cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF991B1B' } };
+  } else if (code === 'X') {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFCCFBF1' } };
+    cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF0F766E' } };
+  } else if (code === 'K') {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3E8FF' } };
+    cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF6B21A8' } };
+  }
+}
+
+// Convert 1-based column number to Excel column letters (1 -> A, 27 -> AA)
+function colLetter(colNumber: number): string {
+  let temp = colNumber;
+  let letter = '';
+  while (temp > 0) {
+    const mod = (temp - 1) % 26;
+    letter = String.fromCharCode(65 + mod) + letter;
+    temp = Math.floor((temp - mod) / 26);
+  }
+  return letter;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const format = searchParams.get('format') || 'xls';
+  const format = searchParams.get('format') || 'xlsx';
   const monthParam = searchParams.get('month');
   const yearParam = searchParams.get('year');
 
@@ -45,6 +93,7 @@ export async function GET(request: Request) {
     const monthData = storeService.getTimesheetForMonth(year, month);
     const monthName = getMonthNameUz(month);
 
+    // CSV format fallback if requested
     if (format === 'csv') {
       let csvContent = '\uFEFF'; // UTF-8 BOM
       const headerDays = monthData.days.map((d: any) => `"${d.dayNumber}-${d.dayOfWeek}"`).join(',');
@@ -72,166 +121,266 @@ export async function GET(request: Request) {
       });
     }
 
-    // Official Excel XML/HTML Spreadsheet format (.xls)
-    const excelHtml = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <!--[if gte mso 9]>
-        <xml>
-          <x:ExcelWorkbook>
-            <x:ExcelWorksheets>
-              <x:ExcelWorksheet>
-                <x:Name>${monthName} ${year} Tabell</x:Name>
-                <x:WorksheetOptions>
-                  <x:DisplayGridlines/>
-                </x:WorksheetOptions>
-              </x:ExcelWorksheet>
-            </x:ExcelWorksheets>
-          </x:ExcelWorkbook>
-        </xml>
-        <![endif]-->
-        <style>
-          body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #0f172a; }
-          .header-title { font-size: 14pt; font-weight: bold; text-align: center; color: #0369a1; }
-          .header-sub { font-size: 11pt; font-weight: bold; text-align: center; color: #334155; }
-          .th-main { background-color: #0284c7; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #0369a1; vertical-align: middle; }
-          .th-weekend { background-color: #cbd5e1; color: #334155; font-weight: bold; text-align: center; border: 1px solid #94a3b8; }
-          .th-holiday { background-color: #fef08a; color: #854d0e; font-weight: bold; text-align: center; border: 1px solid #ca8a04; }
-          td { border: 1px solid #cbd5e1; padding: 4px 6px; vertical-align: middle; }
-          .cell-center { text-align: center; }
-          .cell-bold { font-weight: bold; }
-          .cell-weekend { background-color: #f1f5f9; color: #64748b; font-weight: bold; text-align: center; }
-          .cell-holiday { background-color: #fef9c3; color: #854d0e; font-weight: bold; text-align: center; }
-          .cell-work { background-color: #f0fdf4; color: #166534; font-weight: bold; text-align: center; }
-          .cell-excused { background-color: #e0f2fe; color: #0284c7; font-weight: bold; text-align: center; }
-          .cell-absent { background-color: #fee2e2; color: #b91c1c; font-weight: bold; text-align: center; }
-          .cell-total { background-color: #f8fafc; font-weight: bold; text-align: center; }
-          .legend-box { font-size: 9pt; color: #475569; padding: 4px; }
-        </style>
-      </head>
-      <body>
-        <table>
-          <tr>
-            <td colspan="${monthData.totalDays + 11}" class="header-title">O‘ZBEKISTON RESPUBLIKASI O‘SIMLIKLAR KARANTINI VA HIMOYASI AGENTLIGI</td>
-          </tr>
-          <tr>
-            <td colspan="${monthData.totalDays + 11}" class="header-sub">BANDIXON TUMAN O‘SIMLIKLAR KARANTINI VA HIMOYASI BO‘LIMI</td>
-          </tr>
-          <tr>
-            <td colspan="${monthData.totalDays + 11}" class="header-title" style="font-size: 12pt; color: #0f172a; padding: 6px 0;">
-              XODIMLARNING ISH VAQTIDAN FOYDALANISH VA DAVOMAT TABELI (T-12 Shakli)
-            </td>
-          </tr>
-          <tr>
-            <td colspan="${monthData.totalDays + 11}" style="text-align: center; font-weight: bold; color: #0284c7; padding-bottom: 8px;">
-              Davr: 2026-yil ${monthName} oyi (1 - ${monthData.totalDays} ${monthName})
-            </td>
-          </tr>
+    // NATIVE MICROSOFT EXCEL (.xlsx) VIA EXCELJS
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Bandixon O‘simliklar Karantini va Himoyasi Bo‘limi';
+    workbook.created = new Date();
 
-          <!-- Legend Bar -->
-          <tr>
-            <td colspan="${monthData.totalDays + 11}" class="legend-box" style="border: none;">
-              <b>Shartli belgilar:</b> 8 - Ish kuni (8 soat) | D - Dam olish kuni (Shanba, Bozor) | B - Rasmiy bayram kuni | J - Javob olgan (ruxsat) | S - Sababsiz kelmagan | X - Xizmat safari (dalada) | K - Kasallik varaqasi
-            </td>
-          </tr>
-          <tr><td colspan="${monthData.totalDays + 11}" style="border: none; height: 6px;"></td></tr>
+    const sheetName = `${monthName} ${year}`;
+    const worksheet = workbook.addWorksheet(sheetName, {
+      views: [{ showGridLines: true }],
+    });
 
-          <thead>
-            <tr>
-              <th rowspan="2" class="th-main" style="width: 35px;">T/r</th>
-              <th rowspan="2" class="th-main" style="width: 220px;">Xodim F.I.Sh</th>
-              <th rowspan="2" class="th-main" style="width: 80px;">Tabel №</th>
-              <th rowspan="2" class="th-main" style="width: 200px;">Lavozimi</th>
-              <th colspan="${monthData.totalDays}" class="th-main">Oy kunlari bo‘yicha ish vaqti va davomat (${monthName} 2026)</th>
-              <th colspan="7" class="th-main" style="background-color: #0369a1;">JAMI KO‘RSATKICHLAR</th>
-            </tr>
-            <tr>
-              ${monthData.days
-                .map((d) => {
-                  let cls = 'th-main';
-                  if (d.isHoliday) cls = 'th-holiday';
-                  else if (d.isWeekend) cls = 'th-weekend';
-                  return `<th class="${cls}" style="width: 28px;">${d.dayNumber}<br/><span style="font-size: 8pt;">${d.dayOfWeek}</span></th>`;
-                })
-                .join('')}
-              <th class="th-main" style="background-color: #0f766e; width: 55px;">Ish kuni</th>
-              <th class="th-main" style="background-color: #0f766e; width: 60px;">Ish soati</th>
-              <th class="th-main" style="background-color: #475569; width: 50px;">Dam</th>
-              <th class="th-main" style="background-color: #0284c7; width: 50px;">Javob</th>
-              <th class="th-main" style="background-color: #b91c1c; width: 50px;">Sababsiz</th>
-              <th class="th-main" style="background-color: #0d9488; width: 50px;">Dalada</th>
-              <th class="th-main" style="background-color: #7c3aed; width: 50px;">Kasal</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${monthData.matrix
-              .map((row: any, idx: number) => {
-                const dayTds = row.records
-                  .map((r: any, i: number) => {
-                    const d = monthData.days[i];
-                    const isHol = Boolean(d && d.isHoliday);
-                    const isWk = Boolean(d && d.isWeekend);
-                    const code = getCellCode(r, isHol, isWk);
-                    let cellClass = 'cell-work';
-                    if (code === 'D') cellClass = 'cell-weekend';
-                    else if (code === 'B') cellClass = 'cell-holiday';
-                    else if (code === 'J') cellClass = 'cell-excused';
-                    else if (code === 'S') cellClass = 'cell-absent';
-                    return `<td class="${cellClass}">${code}</td>`;
-                  })
-                  .join('');
+    const totalDays = monthData.totalDays;
+    const totalCols = 4 + totalDays + 7;
+    const lastColLetter = colLetter(totalCols);
 
-                const fieldWorkDays = row.records.filter((r: any) => r && r.status === 'FIELD_WORK').length;
+    // Row 2: Ministry Title
+    worksheet.mergeCells(`A2:${lastColLetter}2`);
+    const r2 = worksheet.getCell('A2');
+    r2.value = 'O‘ZBEKISTON RESPUBLIKASI QISHLOQ XO‘JALIGI VAZIRLIGI HUZURIDAGI';
+    r2.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF475569' } };
+    r2.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getRow(2).height = 18;
 
-                return `
-                  <tr>
-                    <td class="cell-center cell-bold">${idx + 1}</td>
-                    <td class="cell-bold">${row.employee.user?.name || row.employee.id}</td>
-                    <td class="cell-center" style="font-family: monospace;">${row.employee.employeeCode}</td>
-                    <td>${row.employee.position}</td>
-                    ${dayTds}
-                    <td class="cell-total font-bold" style="color: #166534;">${row.summary.totalWorkDays}</td>
-                    <td class="cell-total font-bold" style="color: #166534;">${row.summary.totalWorkHours}</td>
-                    <td class="cell-total" style="color: #64748b;">${row.summary.totalDaysOff}</td>
-                    <td class="cell-total" style="color: #0284c7;">${row.summary.totalExcusedDays}</td>
-                    <td class="cell-total font-bold" style="color: #b91c1c;">${row.summary.totalAbsentDays}</td>
-                    <td class="cell-total font-bold" style="color: #0d9488;">${fieldWorkDays}</td>
-                    <td class="cell-total" style="color: #7c3aed;">${row.summary.totalSickDays}</td>
-                  </tr>
-                `;
-              })
-              .join('')}
-          </tbody>
-          <tfoot>
-            <tr><td colspan="${monthData.totalDays + 11}" style="border: none; height: 16px;"></td></tr>
-            <tr>
-              <td colspan="8" style="border: none; font-weight: bold;">
-                Bo‘lim boshlig‘i: _________________ Bo‘riyev Shuxrat Xursandovich
-              </td>
-              <td colspan="${monthData.totalDays + 3}" style="border: none; text-align: right; font-weight: bold;">
-                Tabel tuzuvchi / Mas'ul inspektor: _________________
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </body>
-      </html>
-    `;
+    // Row 3: Agency Title
+    worksheet.mergeCells(`A3:${lastColLetter}3`);
+    const r3 = worksheet.getCell('A3');
+    r3.value = 'O‘SIMLIKLAR KARANTINI VA HIMOYASI AGENTLIGI SURXONDARYO VILOYATI BANDIXON TUMANI BO‘LIMI';
+    r3.font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF0369A1' } };
+    r3.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getRow(3).height = 22;
 
-    return new Response(excelHtml, {
+    // Row 4: Timesheet Title
+    worksheet.mergeCells(`A4:${lastColLetter}4`);
+    const r4 = worksheet.getCell('A4');
+    r4.value = `${year}-YIL ${monthName.toUpperCase()} OYI UCHUN ISH VAQTI VA DAVOMAT TABELI (1 - ${totalDays} ${monthName.toUpperCase()})`;
+    r4.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FF0F172A' } };
+    r4.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getRow(4).height = 25;
+
+    // Row 6 & 7: Headers
+    worksheet.mergeCells('A6:A7');
+    const hTr = worksheet.getCell('A6');
+    hTr.value = 'T/r';
+
+    worksheet.mergeCells('B6:B7');
+    const hName = worksheet.getCell('B6');
+    hName.value = 'Xodim F.I.Sh';
+
+    worksheet.mergeCells('C6:C7');
+    const hCode = worksheet.getCell('C6');
+    hCode.value = 'Tabel №';
+
+    worksheet.mergeCells('D6:D7');
+    const hPos = worksheet.getCell('D6');
+    hPos.value = 'Lavozimi';
+
+    // Set header styling for basic columns
+    ['A', 'B', 'C', 'D'].forEach((col) => {
+      const c = worksheet.getCell(`${col}6`);
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } };
+      c.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+      c.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      c.border = BORDER_HEADER;
+    });
+
+    // Days Columns (E ..)
+    for (let d = 1; d <= totalDays; d++) {
+      const colIdx = 4 + d;
+      const cLetter = colLetter(colIdx);
+      const dayInfo = monthData.days[d - 1];
+      const isWk = dayInfo ? dayInfo.isWeekend : false;
+      const isHol = dayInfo ? dayInfo.isHoliday : false;
+
+      const cellNum = worksheet.getCell(`${cLetter}6`);
+      cellNum.value = d;
+      cellNum.alignment = { horizontal: 'center', vertical: 'middle' };
+      cellNum.border = BORDER_HEADER;
+
+      const cellWk = worksheet.getCell(`${cLetter}7`);
+      cellWk.value = dayInfo ? dayInfo.dayOfWeek : '';
+      cellWk.alignment = { horizontal: 'center', vertical: 'middle' };
+      cellWk.border = BORDER_HEADER;
+
+      if (isHol) {
+        const holFill = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FFCA8A04' } };
+        cellNum.fill = holFill;
+        cellWk.fill = holFill;
+        cellNum.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        cellWk.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+      } else if (isWk) {
+        const wkFill = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FF94A3B8' } };
+        cellNum.fill = wkFill;
+        cellWk.fill = wkFill;
+        cellNum.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        cellWk.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+      } else {
+        const defFill = { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: 'FF0284C7' } };
+        cellNum.fill = defFill;
+        cellWk.fill = defFill;
+        cellNum.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        cellWk.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+      }
+
+      worksheet.getColumn(colIdx).width = 4.5;
+    }
+
+    // Summary headers
+    const summaryHeaders = [
+      { title: 'Ish kuni', width: 9 },
+      { title: 'Ish soati', width: 9 },
+      { title: 'Dam olish', width: 9 },
+      { title: 'Javob', width: 8 },
+      { title: 'Sababsiz', width: 8 },
+      { title: 'Dalada', width: 8 },
+      { title: 'Kasal', width: 8 },
+    ];
+
+    summaryHeaders.forEach((sh, sIdx) => {
+      const colIdx = 4 + totalDays + sIdx + 1;
+      const cLetter = colLetter(colIdx);
+
+      worksheet.mergeCells(`${cLetter}6:${cLetter}7`);
+      const sc = worksheet.getCell(`${cLetter}6`);
+      sc.value = sh.title;
+      sc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F766E' } };
+      sc.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+      sc.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      sc.border = BORDER_HEADER;
+
+      worksheet.getColumn(colIdx).width = sh.width;
+    });
+
+    worksheet.getRow(6).height = 20;
+    worksheet.getRow(7).height = 18;
+
+    // Set static column widths
+    worksheet.getColumn(1).width = 5;
+    worksheet.getColumn(2).width = 30;
+    worksheet.getColumn(3).width = 12;
+    worksheet.getColumn(4).width = 28;
+
+    // Data rows
+    let curRow = 8;
+    monthData.matrix.forEach((item: any, idx: number) => {
+      const row = worksheet.getRow(curRow);
+      row.height = 22;
+
+      // Col 1: T/r
+      const c1 = row.getCell(1);
+      c1.value = idx + 1;
+      c1.alignment = { horizontal: 'center', vertical: 'middle' };
+      c1.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF475569' } };
+      c1.border = BORDER_THIN;
+
+      // Col 2: Name
+      const c2 = row.getCell(2);
+      c2.value = item.employee?.user?.name || item.employee?.id || '';
+      c2.alignment = { horizontal: 'left', vertical: 'middle' };
+      c2.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+      c2.border = BORDER_THIN;
+
+      // Col 3: Employee Code
+      const c3 = row.getCell(3);
+      c3.value = item.employee?.employeeCode || '';
+      c3.alignment = { horizontal: 'center', vertical: 'middle' };
+      c3.font = { name: 'Consolas', size: 9, bold: true, color: { argb: 'FF0369A1' } };
+      c3.border = BORDER_THIN;
+
+      // Col 4: Position
+      const c4 = row.getCell(4);
+      c4.value = item.employee?.position || '';
+      c4.alignment = { horizontal: 'left', vertical: 'middle' };
+      c4.font = { name: 'Calibri', size: 9, color: { argb: 'FF334155' } };
+      c4.border = BORDER_THIN;
+
+      // Day cells
+      for (let d = 1; d <= totalDays; d++) {
+        const colIdx = 4 + d;
+        const cell = row.getCell(colIdx);
+        const dayInfo = monthData.days[d - 1];
+        const record = item.records[d - 1];
+
+        const isHol = Boolean(dayInfo && dayInfo.isHoliday);
+        const isWk = Boolean(dayInfo && dayInfo.isWeekend);
+        const code = getCellCode(record, isHol, isWk);
+
+        cell.value = code;
+        styleAttendanceCell(cell, code, isHol, isWk);
+      }
+
+      // Summary cells
+      const fieldWorkCount = item.records.filter((r: any) => r && r.status === 'FIELD_WORK').length;
+      const summaries = [
+        { val: item.summary?.totalWorkDays || 0, bg: 'FFDCFCE7', fg: 'FF166534', bold: true },
+        { val: item.summary?.totalWorkHours || 0, bg: 'FFDCFCE7', fg: 'FF166534', bold: true },
+        { val: item.summary?.totalDaysOff || 0, bg: 'FFF1F5F9', fg: 'FF475569', bold: false },
+        { val: item.summary?.totalExcusedDays || 0, bg: 'FFDBEAFE', fg: 'FF1E40AF', bold: false },
+        { val: item.summary?.totalAbsentDays || 0, bg: 'FFFEE2E2', fg: 'FF991B1B', bold: true },
+        { val: fieldWorkCount, bg: 'FFCCFBF1', fg: 'FF0F766E', bold: false },
+        { val: item.summary?.totalSickDays || 0, bg: 'FFF3E8FF', fg: 'FF6B21A8', bold: false },
+      ];
+
+      summaries.forEach((s, sIdx) => {
+        const colIdx = 4 + totalDays + sIdx + 1;
+        const sc = row.getCell(colIdx);
+        sc.value = s.val;
+        sc.alignment = { horizontal: 'center', vertical: 'middle' };
+        sc.border = BORDER_THIN;
+        sc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: s.bg } };
+        sc.font = { name: 'Calibri', size: 9, bold: s.bold, color: { argb: s.fg } };
+      });
+
+      curRow++;
+    });
+
+    // Legend Row
+    curRow += 1;
+    worksheet.mergeCells(`A${curRow}:${lastColLetter}${curRow}`);
+    const rLegend = worksheet.getCell(`A${curRow}`);
+    rLegend.value = 'Shartli belgilar: 8 - Ish kuni (8 soat) | D - Dam olish kuni (Shanba, Bozor) | B - Rasmiy bayram kuni | J - Ruxsat (Javob olgan) | S - Sababsiz kelmagan | X - Xizmat safari (Dalada) | K - Kasallik varaqasi';
+    rLegend.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF475569' } };
+    rLegend.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getRow(curRow).height = 18;
+
+    // Signatures Row
+    curRow += 2;
+    const splitCol = Math.floor(totalCols / 2);
+    const splitColLetter = colLetter(splitCol);
+    const nextColLetter = colLetter(splitCol + 1);
+
+    worksheet.mergeCells(`B${curRow}:${splitColLetter}${curRow}`);
+    const sig1 = worksheet.getCell(`B${curRow}`);
+    sig1.value = 'Bo‘lim boshlig‘i: Bo‘riyev Shuxrat Xursandovich              (imzo) ____________________';
+    sig1.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+    sig1.alignment = { horizontal: 'left', vertical: 'middle' };
+
+    worksheet.mergeCells(`${nextColLetter}${curRow}:${lastColLetter}${curRow}`);
+    const sig2 = worksheet.getCell(`${nextColLetter}${curRow}`);
+    sig2.value = 'Tabelchi (Mas\'ul xodim): ____________________              (imzo) ____________________';
+    sig2.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+    sig2.alignment = { horizontal: 'right', vertical: 'middle' };
+    worksheet.getRow(curRow).height = 25;
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const fileName = `Bandixon_Karantin_Oylik_Tabel_${year}_${monthName}.xlsx`;
+
+    return new Response(buffer, {
       headers: {
-        'Content-Type': 'application/vnd.ms-excel; charset=utf-8',
-        'Content-Disposition': `attachment; filename="Bandixon_Karantin_Oylik_Tabel_${year}_${monthName}.xls"`,
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename="${fileName}"`,
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
     });
   }
 
   // =========================================================================
-  // 2. DAILY EXPORT MODE (Selected single day)
+  // 2. DAILY EXPORT MODE (SOATBAY VA ANIQ DAVOMAT)
   // =========================================================================
   const date = searchParams.get('date') || getUzbekistanDateString();
   const records = storeService.getTimesheetByDate(date);
+  const displayDate = date.split('-').reverse().join('.');
 
   const presentCount = records.filter((r) => r.status === 'PRESENT').length;
   const lateCount = records.filter((r) => r.status === 'LATE').length;
@@ -239,17 +388,11 @@ export async function GET(request: Request) {
   const absentCount = records.filter((r) => r.status === 'ABSENT').length;
   const fieldWorkCount = records.filter((r) => r.status === 'FIELD_WORK').length;
 
-  const dateParts = date.split('-');
-  const displayDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : date;
-
   if (format === 'csv') {
     let csvContent = '\uFEFF';
-    csvContent += 'T/r,Xodim F.I.Sh,Tabel raqami,Lavozimi,Holati,Kelgan vaqti,Ketgan vaqti,Ishlagan soati,Sababi / Soatma-soat izohi,Qayd etuvchi\n';
-
+    csvContent += 'T/r,Xodim F.I.Sh,Tabel raqami,Lavozimi,Holati,Kelgan vaqti,Ketgan vaqti,Ishlagan soati,Sababi/Izohi\n';
     records.forEach((r, idx) => {
-      const statusInfo = STATUS_LABELS[r.status] || { ...DEFAULT_STATUS_INFO, label: r.status };
-      const line = `"${idx + 1}","${r.employeeName}","${r.employeeCode}","${r.position}","${statusInfo.label}","${r.checkInTime || '-'}","${r.checkOutTime || '-'}","${r.workHours}","${(r.reason || r.hourlyLog || '').replace(/"/g, '""')}","${r.recordedBy || 'Bo‘lim boshlig‘i'}"\n`;
-      csvContent += line;
+      csvContent += `"${idx + 1}","${r.employeeName}","${r.employeeCode}","${r.position}","${r.status}","${r.checkInTime || ''}","${r.checkOutTime || ''}","${r.workHours}","${(r.reason || r.hourlyLog || '').replace(/"/g, '""')}"\n`;
     });
 
     return new Response(csvContent, {
@@ -260,122 +403,191 @@ export async function GET(request: Request) {
     });
   }
 
-  const excelHtml = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-      <!--[if gte mso 9]>
-      <xml>
-        <x:ExcelWorkbook>
-          <x:ExcelWorksheets>
-            <x:ExcelWorksheet>
-              <x:Name>Kunlik Tabel ${displayDate}</x:Name>
-              <x:WorksheetOptions>
-                <x:DisplayGridlines/>
-              </x:WorksheetOptions>
-            </x:ExcelWorksheet>
-          </x:ExcelWorksheets>
-        </x:ExcelWorkbook>
-      </xml>
-      <![endif]-->
-      <style>
-        body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 11pt; color: #1e293b; }
-        .header-title { font-size: 15pt; font-weight: bold; text-align: center; color: #0369a1; }
-        .header-subtitle { font-size: 11pt; text-align: center; color: #475569; }
-        .table-header { background-color: #0284c7; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #0369a1; }
-        td { border: 1px solid #cbd5e1; padding: 6px 10px; vertical-align: middle; }
-        .center { text-align: center; }
-        .right { text-align: right; }
-        .font-bold { font-weight: bold; }
-        .summary-box { background-color: #f0fdf4; border: 1px solid #86efac; font-weight: bold; }
-      </style>
-    </head>
-    <body>
-      <table>
-        <tr>
-          <td colspan="9" class="header-title">O‘ZBEKISTON RESPUBLIKASI O‘SIMLIKLAR KARANTINI VA HIMOYASI AGENTLIGI</td>
-        </tr>
-        <tr>
-          <td colspan="9" class="header-subtitle">BANDIXON TUMAN O‘SIMLIKLAR KARANTINI VA HIMOYASI BO‘LIMI</td>
-        </tr>
-        <tr>
-          <td colspan="9" class="header-title" style="font-size: 13pt; color: #0f172a; padding: 8px 0;">
-            XODIMLARNING KUNLIK ISHGA KELDI-KETDI VA DAVOMAT TABELI
-          </td>
-        </tr>
-        <tr>
-          <td colspan="5" style="border: none; font-weight: bold; color: #0284c7;">
-            Sana: ${displayDate} yil
-          </td>
-          <td colspan="4" style="border: none; text-align: right; color: #64748b;">
-            Tasdiqlayman: Bo‘lim boshlig‘i Bo‘riyev Shuxrat Xursandovich
-          </td>
-        </tr>
-        <tr><td colspan="9" style="border: none; height: 10px;"></td></tr>
-        <thead>
-          <tr>
-            <th class="table-header" style="width: 40px;">T/r</th>
-            <th class="table-header" style="width: 250px;">Xodim F.I.Sh</th>
-            <th class="table-header" style="width: 90px;">Tabel №</th>
-            <th class="table-header" style="width: 220px;">Lavozimi</th>
-            <th class="table-header" style="width: 150px;">Holati</th>
-            <th class="table-header" style="width: 90px;">Kelgan vaqti</th>
-            <th class="table-header" style="width: 90px;">Ketgan vaqti</th>
-            <th class="table-header" style="width: 80px;">Ishlagan soati</th>
-            <th class="table-header" style="width: 300px;">Sababi / Soatma-soat izohi</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${records
-            .map((r, idx) => {
-              const statusInfo = STATUS_LABELS[r.status] || { ...DEFAULT_STATUS_INFO, label: r.status };
-              return `
-                <tr>
-                  <td class="center font-bold">${idx + 1}</td>
-                  <td class="font-bold">${r.employeeName}</td>
-                  <td class="center" style="font-family: monospace;">${r.employeeCode}</td>
-                  <td>${r.position}</td>
-                  <td class="center font-bold" style="background-color: ${statusInfo.bg}; color: ${statusInfo.color};">
-                    ${statusInfo.label}
-                  </td>
-                  <td class="center font-bold" style="color: #0369a1;">${r.checkInTime || '-'}</td>
-                  <td class="center font-bold" style="color: #0369a1;">${r.checkOutTime || '-'}</td>
-                  <td class="center font-bold">${r.workHours} soat</td>
-                  <td style="color: #334155;">${r.reason || r.hourlyLog || '-'}</td>
-                </tr>
-              `;
-            })
-            .join('')}
-        </tbody>
-        <tfoot>
-          <tr><td colspan="9" style="border: none; height: 12px;"></td></tr>
-          <tr class="summary-box">
-            <td colspan="4" class="font-bold" style="padding: 10px;">
-              KUNLIK STATISTIKA: Jami xodimlar: ${records.length} nafar
-            </td>
-            <td colspan="5" class="right font-bold" style="padding: 10px;">
-              Ishda: ${presentCount} ta | Kechikkan: ${lateCount} ta | Javob olgan: ${excusedCount} ta | Sababsiz: ${absentCount} ta | Dalada: ${fieldWorkCount} ta
-            </td>
-          </tr>
-          <tr><td colspan="9" style="border: none; height: 25px;"></td></tr>
-          <tr>
-            <td colspan="4" style="border: none; font-weight: bold;">
-              Bo‘lim boshlig‘i: _________________ (Bo‘riyev Sh.X.)
-            </td>
-            <td colspan="5" style="border: none; text-align: right; font-weight: bold;">
-              Kadrlar / Mas'ul inspektor: _________________
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </body>
-    </html>
-  `;
+  // NATIVE MICROSOFT EXCEL (.xlsx) FOR DAILY TIMESHEET
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Bandixon O‘simliklar Karantini va Himoyasi Bo‘limi';
+  workbook.created = new Date();
 
-  return new Response(excelHtml, {
+  const worksheet = workbook.addWorksheet(`Kunlik ${displayDate}`, {
+    views: [{ showGridLines: true }],
+  });
+
+  // Row 2: Ministry
+  worksheet.mergeCells('A2:I2');
+  const d2 = worksheet.getCell('A2');
+  d2.value = 'O‘ZBEKISTON RESPUBLIKASI QISHLOQ XO‘JALIGI VAZIRLIGI HUZURIDAGI';
+  d2.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF475569' } };
+  d2.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  // Row 3: Agency
+  worksheet.mergeCells('A3:I3');
+  const d3 = worksheet.getCell('A3');
+  d3.value = 'O‘SIMLIKLAR KARANTINI VA HIMOYASI AGENTLIGI SURXONDARYO VILOYATI BANDIXON TUMANI BO‘LIMI';
+  d3.font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF0369A1' } };
+  d3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  // Row 4: Title
+  worksheet.mergeCells('A4:I4');
+  const d4 = worksheet.getCell('A4');
+  d4.value = `XODIMLARNING KUNLIK ISHGA KELDI-KETDI VA DAVOMAT TABELI (${displayDate} YIL)`;
+  d4.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FF0F172A' } };
+  d4.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  // Row 6: Table Headers
+  const dailyHeaders = [
+    { title: 'T/r', width: 6 },
+    { title: 'Xodim F.I.Sh', width: 32 },
+    { title: 'Tabel №', width: 12 },
+    { title: 'Lavozimi', width: 28 },
+    { title: 'Holati (Davomat)', width: 22 },
+    { title: 'Kelgan vaqti', width: 14 },
+    { title: 'Ketgan vaqti', width: 14 },
+    { title: 'Ishlagan soati', width: 14 },
+    { title: 'Sababi / Soatma-soat izohi', width: 35 },
+  ];
+
+  const hRow = worksheet.getRow(6);
+  hRow.height = 24;
+
+  dailyHeaders.forEach((dh, idx) => {
+    const colIdx = idx + 1;
+    const cell = hRow.getCell(colIdx);
+    cell.value = dh.title;
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } };
+    cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    cell.border = BORDER_HEADER;
+    worksheet.getColumn(colIdx).width = dh.width;
+  });
+
+  // Table Data
+  let curDailyRow = 7;
+  records.forEach((r, idx) => {
+    const row = worksheet.getRow(curDailyRow);
+    row.height = 22;
+
+    const c1 = row.getCell(1);
+    c1.value = idx + 1;
+    c1.alignment = { horizontal: 'center', vertical: 'middle' };
+    c1.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF475569' } };
+    c1.border = BORDER_THIN;
+
+    const c2 = row.getCell(2);
+    c2.value = r.employeeName;
+    c2.alignment = { horizontal: 'left', vertical: 'middle' };
+    c2.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+    c2.border = BORDER_THIN;
+
+    const c3 = row.getCell(3);
+    c3.value = r.employeeCode;
+    c3.alignment = { horizontal: 'center', vertical: 'middle' };
+    c3.font = { name: 'Consolas', size: 9, bold: true, color: { argb: 'FF0369A1' } };
+    c3.border = BORDER_THIN;
+
+    const c4 = row.getCell(4);
+    c4.value = r.position;
+    c4.alignment = { horizontal: 'left', vertical: 'middle' };
+    c4.font = { name: 'Calibri', size: 9, color: { argb: 'FF334155' } };
+    c4.border = BORDER_THIN;
+
+    // Status mapping with nice colors
+    const c5 = row.getCell(5);
+    let statusText = 'Ishga kelgan';
+    let statusBg = 'FFDCFCE7';
+    let statusFg = 'FF166534';
+
+    if (r.status === 'LATE') {
+      statusText = 'Kechikib kelgan';
+      statusBg = 'FFFEF9C3';
+      statusFg = 'FF854D0E';
+    } else if (r.status === 'EXCUSED') {
+      statusText = 'Javob olgan (Ruxsat)';
+      statusBg = 'FFDBEAFE';
+      statusFg = 'FF1E40AF';
+    } else if (r.status === 'ABSENT') {
+      statusText = 'Sababsiz kelmagan';
+      statusBg = 'FFFEE2E2';
+      statusFg = 'FF991B1B';
+    } else if (r.status === 'FIELD_WORK') {
+      statusText = 'Xizmat safari (Dalada)';
+      statusBg = 'FFCCFBF1';
+      statusFg = 'FF0F766E';
+    } else if (r.status === 'SICK_LEAVE') {
+      statusText = 'Kasallik varaqasi';
+      statusBg = 'FFF3E8FF';
+      statusFg = 'FF6B21A8';
+    } else if (r.status === 'DAY_OFF') {
+      statusText = 'Dam olish kuni';
+      statusBg = 'FFF1F5F9';
+      statusFg = 'FF475569';
+    }
+
+    c5.value = statusText;
+    c5.alignment = { horizontal: 'center', vertical: 'middle' };
+    c5.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: statusBg } };
+    c5.font = { name: 'Calibri', size: 9, bold: true, color: { argb: statusFg } };
+    c5.border = BORDER_THIN;
+
+    const c6 = row.getCell(6);
+    c6.value = r.checkInTime || '-';
+    c6.alignment = { horizontal: 'center', vertical: 'middle' };
+    c6.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0369A1' } };
+    c6.border = BORDER_THIN;
+
+    const c7 = row.getCell(7);
+    c7.value = r.checkOutTime || '-';
+    c7.alignment = { horizontal: 'center', vertical: 'middle' };
+    c7.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0369A1' } };
+    c7.border = BORDER_THIN;
+
+    const c8 = row.getCell(8);
+    c8.value = `${r.workHours} soat`;
+    c8.alignment = { horizontal: 'center', vertical: 'middle' };
+    c8.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF166534' } };
+    c8.border = BORDER_THIN;
+
+    const c9 = row.getCell(9);
+    c9.value = r.reason || r.hourlyLog || '-';
+    c9.alignment = { horizontal: 'left', vertical: 'middle' };
+    c9.font = { name: 'Calibri', size: 9, color: { argb: 'FF334155' } };
+    c9.border = BORDER_THIN;
+
+    curDailyRow++;
+  });
+
+  // Summary row
+  curDailyRow += 1;
+  worksheet.mergeCells(`A${curDailyRow}:I${curDailyRow}`);
+  const dSum = worksheet.getCell(`A${curDailyRow}`);
+  dSum.value = `KUNLIK STATISTIKA: Jami: ${records.length} nafar | Ishda: ${presentCount} ta | Kechikkan: ${lateCount} ta | Javob olgan: ${excusedCount} ta | Sababsiz: ${absentCount} ta | Dalada: ${fieldWorkCount} ta`;
+  dSum.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF4' } };
+  dSum.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF166534' } };
+  dSum.alignment = { horizontal: 'center', vertical: 'middle' };
+  dSum.border = BORDER_THIN;
+  worksheet.getRow(curDailyRow).height = 20;
+
+  // Signatures
+  curDailyRow += 2;
+  worksheet.mergeCells(`A${curDailyRow}:D${curDailyRow}`);
+  const dSig1 = worksheet.getCell(`A${curDailyRow}`);
+  dSig1.value = 'Bo‘lim boshlig‘i: Bo‘riyev Shuxrat Xursandovich (imzo) ____________________';
+  dSig1.font = { name: 'Calibri', size: 10, bold: true };
+
+  worksheet.mergeCells(`F${curDailyRow}:I${curDailyRow}`);
+  const dSig2 = worksheet.getCell(`F${curDailyRow}`);
+  dSig2.value = 'Kadrlar / Mas\'ul xodim: ____________________ (imzo) ____________________';
+  dSig2.font = { name: 'Calibri', size: 10, bold: true };
+  dSig2.alignment = { horizontal: 'right', vertical: 'middle' };
+  worksheet.getRow(curDailyRow).height = 25;
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const fileName = `Bandixon_Karantin_Kunlik_Tabel_${date}.xlsx`;
+
+  return new Response(buffer, {
     headers: {
-      'Content-Type': 'application/vnd.ms-excel; charset=utf-8',
-      'Content-Disposition': `attachment; filename="Bandixon_Karantin_Kunlik_Tabel_${date}.xls"`,
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
     },
   });
 }

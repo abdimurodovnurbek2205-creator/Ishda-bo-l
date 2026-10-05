@@ -564,20 +564,20 @@ export default function TimesheetPage() {
                 {/* Excel Download Button (Tepada Excelda yuklash) */}
                 {activeTab === 'monthly' ? (
                   <a
-                    href={`/api/timesheet/export?year=${currentYear}&month=${currentMonth}&format=xls`}
+                    href={`/api/timesheet/export?year=${currentYear}&month=${currentMonth}&format=xlsx`}
                     download
                     className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-md shadow-emerald-600/25 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
-                    title={`${currentMonthName} 2026 oylik tabelini rasmiy Excel formatida yuklash`}
+                    title={`${currentMonthName} 2026 oylik tabelini haqiqiy Excel (.xlsx) formatida yuklash`}
                   >
                     <FileSpreadsheet className="w-4 h-4" />
                     <span>Excelda yuklash</span>
                   </a>
                 ) : (
                   <a
-                    href={`/api/timesheet/export?date=${selectedDate}&format=xls`}
+                    href={`/api/timesheet/export?date=${selectedDate}&format=xlsx`}
                     download
                     className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-md shadow-emerald-600/25 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
-                    title="Kunlik tabelni Excel formatida yuklash"
+                    title="Kunlik tabelni haqiqiy Excel (.xlsx) formatida yuklash"
                   >
                     <FileSpreadsheet className="w-4 h-4" />
                     <span>Excelda yuklash</span>
