@@ -14,7 +14,10 @@ const STATUS_LABELS: Record<string, { label: string; code: string; color: string
   DAY_OFF: { label: 'Dam olish kuni', code: 'D', color: '#475569', bg: '#f1f5f9' },
 };
 
+const DEFAULT_STATUS_INFO = { label: 'Noma‘lum', code: '-', color: '#475569', bg: '#f1f5f9' };
+
 function getCellCode(record: any, isHoliday: boolean, isWeekendDay: boolean): string {
+  if (!record) return isWeekendDay ? 'D' : '8';
   if (record.status === 'DAY_OFF') {
     return isHoliday ? 'B' : 'D';
   }
@@ -44,19 +47,21 @@ export async function GET(request: Request) {
 
     if (format === 'csv') {
       let csvContent = '\uFEFF'; // UTF-8 BOM
-      const headerDays = monthData.days.map((d) => `"${d.dayNumber}-${d.dayOfWeek}"`).join(',');
+      const headerDays = monthData.days.map((d: any) => `"${d.dayNumber}-${d.dayOfWeek}"`).join(',');
       csvContent += `T/r,Xodim F.I.Sh,Tabel raqami,Lavozimi,${headerDays},Ish kunlari,Ish soatlari,Dam olish,Javob olgan,Sababsiz,Xizmat safari,Kasallik\n`;
 
-      monthData.matrix.forEach((item, idx) => {
+      monthData.matrix.forEach((item: any, idx: number) => {
         const dayCols = item.records
-          .map((r, i) => {
+          .map((r: any, i: number) => {
             const d = monthData.days[i];
-            const code = getCellCode(r, d.isHoliday, d.isWeekend);
+            const isHol = Boolean(d && d.isHoliday);
+            const isWk = Boolean(d && d.isWeekend);
+            const code = getCellCode(r, isHol, isWk);
             return `"${code}"`;
           })
           .join(',');
 
-        csvContent += `"${idx + 1}","${item.employee.user?.name || item.employee.id}","${item.employee.employeeCode}","${item.employee.position}",${dayCols},"${item.summary.totalWorkDays}","${item.summary.totalWorkHours}","${item.summary.totalDaysOff}","${item.summary.totalExcusedDays}","${item.summary.totalAbsentDays}","${item.records.filter((r) => r.status === 'FIELD_WORK').length}","${item.summary.totalSickDays}"\n`;
+        csvContent += `"${idx + 1}","${item.employee?.user?.name || item.employee?.id || ''}","${item.employee?.employeeCode || ''}","${item.employee?.position || ''}",${dayCols},"${item.summary?.totalWorkDays || 0}","${item.summary?.totalWorkHours || 0}","${item.summary?.totalDaysOff || 0}","${item.summary?.totalExcusedDays || 0}","${item.summary?.totalAbsentDays || 0}","${item.records.filter((r: any) => r && r.status === 'FIELD_WORK').length}","${item.summary?.totalSickDays || 0}"\n`;
       });
 
       return new Response(csvContent, {
@@ -161,11 +166,13 @@ export async function GET(request: Request) {
           </thead>
           <tbody>
             ${monthData.matrix
-              .map((row, idx) => {
+              .map((row: any, idx: number) => {
                 const dayTds = row.records
-                  .map((r, i) => {
+                  .map((r: any, i: number) => {
                     const d = monthData.days[i];
-                    const code = getCellCode(r, d.isHoliday, d.isWeekend);
+                    const isHol = Boolean(d && d.isHoliday);
+                    const isWk = Boolean(d && d.isWeekend);
+                    const code = getCellCode(r, isHol, isWk);
                     let cellClass = 'cell-work';
                     if (code === 'D') cellClass = 'cell-weekend';
                     else if (code === 'B') cellClass = 'cell-holiday';
@@ -175,7 +182,7 @@ export async function GET(request: Request) {
                   })
                   .join('');
 
-                const fieldWorkDays = row.records.filter((r) => r.status === 'FIELD_WORK').length;
+                const fieldWorkDays = row.records.filter((r: any) => r && r.status === 'FIELD_WORK').length;
 
                 return `
                   <tr>
@@ -240,7 +247,7 @@ export async function GET(request: Request) {
     csvContent += 'T/r,Xodim F.I.Sh,Tabel raqami,Lavozimi,Holati,Kelgan vaqti,Ketgan vaqti,Ishlagan soati,Sababi / Soatma-soat izohi,Qayd etuvchi\n';
 
     records.forEach((r, idx) => {
-      const statusInfo = STATUS_LABELS[r.status] || { label: r.status };
+      const statusInfo = STATUS_LABELS[r.status] || { ...DEFAULT_STATUS_INFO, label: r.status };
       const line = `"${idx + 1}","${r.employeeName}","${r.employeeCode}","${r.position}","${statusInfo.label}","${r.checkInTime || '-'}","${r.checkOutTime || '-'}","${r.workHours}","${(r.reason || r.hourlyLog || '').replace(/"/g, '""')}","${r.recordedBy || 'Bo‘lim boshlig‘i'}"\n`;
       csvContent += line;
     });
@@ -321,7 +328,7 @@ export async function GET(request: Request) {
         <tbody>
           ${records
             .map((r, idx) => {
-              const statusInfo = STATUS_LABELS[r.status] || { label: r.status, color: '#000', bg: '#fff' };
+              const statusInfo = STATUS_LABELS[r.status] || { ...DEFAULT_STATUS_INFO, label: r.status };
               return `
                 <tr>
                   <td class="center font-bold">${idx + 1}</td>
