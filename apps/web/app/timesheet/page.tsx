@@ -28,11 +28,7 @@ import {
   Sparkles,
   HelpCircle,
   X,
-  Filter,
   Info,
-  CalendarDays,
-  Settings,
-  Flame,
 } from 'lucide-react';
 import { getMonthNameUz } from '@/lib/date-utils';
 
@@ -217,13 +213,13 @@ export default function TimesheetPage() {
     try {
       const res = await fetch(`/api/timesheet?year=${year}&month=${month}&t=${Date.now()}`);
       const data = await res.json();
-      if (data.success && data.type === 'monthly') {
+      if (data && data.success && data.type === 'monthly') {
         setMonthlyData({
           year: data.year,
           month: data.month,
           totalDays: data.totalDays,
-          days: data.days,
-          matrix: data.matrix,
+          days: data.days || [],
+          matrix: data.matrix || [],
         });
       }
     } catch (err) {
@@ -238,7 +234,7 @@ export default function TimesheetPage() {
     try {
       const res = await fetch(`/api/timesheet?date=${dateStr}&t=${Date.now()}`);
       const data = await res.json();
-      if (data.records) {
+      if (data && data.records) {
         setDailyRecords(data.records);
       }
     } catch (err) {
@@ -264,7 +260,6 @@ export default function TimesheetPage() {
   const handleSelectMonth = (year: number, month: number) => {
     setCurrentYear(year);
     setCurrentMonth(month);
-    // Align daily date to 1st of that month
     const mStr = String(month).padStart(2, '0');
     setSelectedDate(`${year}-${mStr}-01`);
   };
@@ -294,7 +289,7 @@ export default function TimesheetPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         setIsHolidayModalOpen(false);
         setStatusMessage(
           isHoliday
@@ -302,7 +297,6 @@ export default function TimesheetPage() {
             : `✅ ${holidayFormDate} sanasi ish kuni deb belgilandi.`
         );
         setTimeout(() => setStatusMessage(''), 5000);
-        // Refresh views
         if (activeTab === 'monthly') {
           fetchMonthlyTimesheet(currentYear, currentMonth);
         } else {
@@ -343,9 +337,8 @@ export default function TimesheetPage() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         setCellEditTarget(null);
-        // Refresh monthly grid
         fetchMonthlyTimesheet(currentYear, currentMonth);
       }
     } catch (err) {
@@ -366,7 +359,6 @@ export default function TimesheetPage() {
         if (rec.employeeId !== employeeId) return rec;
         const updated = { ...rec, [field]: value };
 
-        // Recalculate hours if checkIn or checkOut changed
         if (field === 'checkInTime' || field === 'checkOutTime') {
           const inVal = field === 'checkInTime' ? value : rec.checkInTime;
           const outVal = field === 'checkOutTime' ? value : rec.checkOutTime;
@@ -376,13 +368,12 @@ export default function TimesheetPage() {
             const totalInMinutes = inH * 60 + inM;
             const totalOutMinutes = outH * 60 + outM;
             if (totalOutMinutes > totalInMinutes) {
-              const diffHours = (totalOutMinutes - totalInMinutes - 60) / 60; // minus 1h lunch
+              const diffHours = (totalOutMinutes - totalInMinutes - 60) / 60;
               updated.workHours = Math.max(0, Math.round(diffHours * 10) / 10);
             }
           }
         }
 
-        // Auto update reason note for statuses
         if (field === 'status') {
           if (value === 'LATE' && !updated.reason) updated.reason = 'Kechikib kelgan';
           else if (value === 'EXCUSED' && !updated.reason) updated.reason = 'Ruxsat so‘rab javob oldi';
@@ -423,7 +414,7 @@ export default function TimesheetPage() {
         body: JSON.stringify({ records: dailyRecords }),
       });
       const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         setStatusMessage('✅ Kunlik tabel muvaffaqiyatli saqlandi!');
         setTimeout(() => setStatusMessage(''), 4000);
       } else {
@@ -502,7 +493,7 @@ export default function TimesheetPage() {
                       : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                   }`}
                 >
-                  <CalendarDays className="w-4 h-4 text-sky-600" />
+                  <Calendar className="w-4 h-4 text-sky-600" />
                   <span>Oylik Tabel (2026 Matritsa)</span>
                 </button>
 
@@ -532,7 +523,7 @@ export default function TimesheetPage() {
                   className="px-3.5 py-2 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 text-xs font-extrabold border border-amber-300/80 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
                   title="Oradagi dam olish yoki bayram kunlarini kiritish"
                 >
-                  <Flame className="w-4 h-4 text-amber-600" />
+                  <Sparkles className="w-4 h-4 text-amber-600" />
                   <span>Bayram / Dam olish kiritish</span>
                 </button>
 
@@ -657,7 +648,7 @@ export default function TimesheetPage() {
               </div>
               <button
                 onClick={() => setStatusMessage('')}
-                className="text-slate-400 hover:text-slate-600 p-1"
+                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -667,273 +658,277 @@ export default function TimesheetPage() {
           {/* ========================================================= */}
           {/* 2. MODE A: MONTHLY TIMESHEET MATRIX (SENTABR - DEKABR)    */}
           {/* ========================================================= */}
-          {activeTab === 'monthly' && (
-            <div className="space-y-4">
-              {/* Legend & Instructions Card */}
-              <div className="glass-panel p-4 rounded-3xl border border-white/80 shadow-md backdrop-blur-xl flex flex-wrap items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-extrabold text-slate-700">Shartli belgilar:</span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>8 - Ish kuni (8 soat)</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 border border-slate-300 font-bold">
-                    <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-                    <span>D - Dam olish kuni (Shanba, Bozor)</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 font-bold">
-                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span>B - Rasmiy bayram kuni</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 font-bold">
-                    <span>J - Javob olgan</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-50 text-rose-800 border border-rose-300 font-bold">
-                    <span>S - Sababsiz</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-teal-50 text-teal-800 border border-teal-300 font-bold">
-                    <span>X - Xizmat safari (Dalada)</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-purple-50 text-purple-800 border border-purple-300 font-bold">
-                    <span>K - Kasallik</span>
-                  </span>
-                </div>
+          {activeTab === 'monthly' &&
+            (() => {
+              if (loading || !monthlyData) {
+                return (
+                  <div className="glass-panel p-16 text-center text-slate-500 font-bold text-xs rounded-3xl border border-white/80 shadow-md">
+                    Oylik tabel ma'lumotlari yuklanmoqda...
+                  </div>
+                );
+              }
 
-                <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 text-sky-600" />
-                  <span>Katakchani yoki kun boshini bosing — holatini o‘zgartiring yoki bayram deb belgilang</span>
-                </div>
-              </div>
+              const md = monthlyData;
+              const daysList = md.days;
 
-              {/* Monthly Matrix Table */}
-              <div className="glass-panel rounded-3xl overflow-hidden border border-white/80 shadow-2xl backdrop-blur-xl">
-                {/* Header info */}
-                <div className="p-4 sm:p-5 border-b border-sky-100/70 bg-gradient-to-r from-white/95 via-sky-50/50 to-white/90 flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h3 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
-                      <CalendarCheck className="w-4 h-4 text-sky-600" />
-                      <span>
-                        Bandixon Bo‘limi: {currentYear}-yil {currentMonthName} oyi davomat tabeli (1 -{' '}
-                        {monthlyData?.totalDays || 30} {currentMonthName})
+              return (
+                <div className="space-y-4">
+                  {/* Legend & Instructions Card */}
+                  <div className="glass-panel p-4 rounded-3xl border border-white/80 shadow-md backdrop-blur-xl flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-extrabold text-slate-700">Shartli belgilar:</span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>8 - Ish kuni (8 soat)</span>
                       </span>
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                      Shanba va bozor kunlari avtomatik dam olish kuni sifatida hisoblangan.
-                    </p>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 border border-slate-300 font-bold">
+                        <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                        <span>D - Dam olish kuni (Shanba, Bozor)</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 font-bold">
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>B - Rasmiy bayram kuni</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 font-bold">
+                        <span>J - Javob olgan</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-50 text-rose-800 border border-rose-300 font-bold">
+                        <span>S - Sababsiz</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-teal-50 text-teal-800 border border-teal-300 font-bold">
+                        <span>X - Xizmat safari (Dalada)</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-purple-50 text-purple-800 border border-purple-300 font-bold">
+                        <span>K - Kasallik</span>
+                      </span>
+                    </div>
+
+                    <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5 text-sky-600" />
+                      <span>Katakchani yoki kun boshini bosing — holatini o‘zgartiring yoki bayram deb belgilang</span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white/80 px-3 py-1 rounded-xl border border-slate-200/60 shadow-2xs">
-                    <span>Mas'ul:</span>
-                    <span className="text-sky-800 font-extrabold">Bo‘riyev Shuxrat X.</span>
-                  </div>
-                </div>
+                  {/* Monthly Matrix Table */}
+                  <div className="glass-panel rounded-3xl overflow-hidden border border-white/80 shadow-2xl backdrop-blur-xl">
+                    {/* Header info */}
+                    <div className="p-4 sm:p-5 border-b border-sky-100/70 bg-gradient-to-r from-white/95 via-sky-50/50 to-white/90 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                          <CalendarCheck className="w-4 h-4 text-sky-600" />
+                          <span>
+                            Bandixon Bo‘limi: {currentYear}-yil {currentMonthName} oyi davomat tabeli (1 -{' '}
+                            {md.totalDays} {currentMonthName})
+                          </span>
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                          Shanba va bozor kunlari avtomatik dam olish kuni sifatida hisoblangan.
+                        </p>
+                      </div>
 
-                {/* Interactive Matrix Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs select-none">
-                    <thead>
-                      <tr className="border-b border-sky-100/80 bg-sky-50/60 text-slate-700 font-extrabold uppercase tracking-wider text-[10px]">
-                        <th className="py-2.5 px-2 w-8 text-center sticky left-0 z-20 bg-sky-50/95 border-r border-sky-200/60">
-                          №
-                        </th>
-                        <th className="py-2.5 px-3 min-w-[200px] sticky left-8 z-20 bg-sky-50/95 border-r border-sky-200/60">
-                          Xodim F.I.Sh / Lavozimi
-                        </th>
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white/80 px-3 py-1 rounded-xl border border-slate-200/60 shadow-2xs">
+                        <span>Mas'ul:</span>
+                        <span className="text-sky-800 font-extrabold">Bo‘riyev Shuxrat X.</span>
+                      </div>
+                    </div>
 
-                        {/* Day headers (1..30/31) */}
-                        {monthlyData?.days.map((d) => {
-                          const isWeekendDay = d.isWeekend;
-                          const isHolidayDay = d.isHoliday;
-
-                          let bgClass = 'bg-sky-50/40 text-slate-700';
-                          if (isHolidayDay) bgClass = 'bg-amber-100/80 text-amber-900';
-                          else if (isWeekendDay) bgClass = 'bg-slate-200/70 text-slate-700';
-
-                          return (
-                            <th
-                              key={d.date}
-                              onClick={() => handleOpenHolidayModalForDay(d.date, d.holidayName)}
-                              title={
-                                d.holidayName
-                                  ? `Bayram: ${d.holidayName}. O‘zgartirish uchun bosing.`
-                                  : isWeekendDay
-                                  ? `${d.dayOfWeekFull} - Dam olish kuni. Bayram yoki ish kuni deb belgilash uchun bosing.`
-                                  : `${d.dayOfWeekFull}. Bayram deb belgilash uchun bosing.`
-                              }
-                              className={`py-2 px-1 text-center min-w-[32px] cursor-pointer hover:bg-sky-200/70 transition-all border-r border-sky-100/60 ${bgClass}`}
-                            >
-                              <div className="font-black text-xs leading-none">{d.dayNumber}</div>
-                              <div className="text-[9px] font-bold text-slate-500 mt-0.5 leading-none">
-                                {d.dayOfWeek}
-                              </div>
-                              {isHolidayDay && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mx-auto mt-0.5" />
-                              )}
+                    {/* Interactive Matrix Table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs select-none">
+                        <thead>
+                          <tr className="border-b border-sky-100/80 bg-sky-50/60 text-slate-700 font-extrabold uppercase tracking-wider text-[10px]">
+                            <th className="py-2.5 px-2 w-8 text-center sticky left-0 z-20 bg-sky-50/95 border-r border-sky-200/60">
+                              №
                             </th>
-                          );
-                        })}
+                            <th className="py-2.5 px-3 min-w-[200px] sticky left-8 z-20 bg-sky-50/95 border-r border-sky-200/60">
+                              Xodim F.I.Sh / Lavozimi
+                            </th>
 
-                        {/* Summary Columns Header */}
-                        <th className="py-2.5 px-2 text-center min-w-[50px] bg-emerald-100/80 text-emerald-900 border-l border-emerald-200">
-                          Ish kuni
-                        </th>
-                        <th className="py-2.5 px-2 text-center min-w-[50px] bg-emerald-100/80 text-emerald-900">
-                          Soat
-                        </th>
-                        <th className="py-2.5 px-2 text-center min-w-[45px] bg-slate-200/80 text-slate-800">
-                          Dam
-                        </th>
-                        <th className="py-2.5 px-2 text-center min-w-[45px] bg-sky-100/80 text-sky-900">
-                          Javob
-                        </th>
-                        <th className="py-2.5 px-2 text-center min-w-[45px] bg-rose-100/80 text-rose-900">
-                          Sabab.
-                        </th>
-                        <th className="py-2.5 px-2 text-center min-w-[45px] bg-teal-100/80 text-teal-900">
-                          Dala
-                        </th>
-                        <th className="py-2.5 px-2 text-center min-w-[45px] bg-purple-100/80 text-purple-900">
-                          Kasal
-                        </th>
-                      </tr>
-                    </thead>
+                            {/* Day headers (1..30/31) */}
+                            {daysList.map((d) => {
+                              const isWeekendDay = d.isWeekend;
+                              const isHolidayDay = d.isHoliday;
 
-                    <tbody className="divide-y divide-sky-100/50 bg-white/70">
-                      {loading ? (
-                        <tr>
-                          <td
-                            colSpan={(monthlyData?.totalDays || 30) + 9}
-                            className="py-16 text-center text-slate-500 font-bold text-xs"
-                          >
-                            Oylik tabel ma'lumotlari yuklanmoqda...
-                          </td>
-                        </tr>
-                      ) : (
-                        monthlyData?.matrix.map((row, idx) => {
-                          const fieldWorkDays = row.records.filter((r) => r.status === 'FIELD_WORK').length;
+                              let bgClass = 'bg-sky-50/40 text-slate-700';
+                              if (isHolidayDay) bgClass = 'bg-amber-100/80 text-amber-900';
+                              else if (isWeekendDay) bgClass = 'bg-slate-200/70 text-slate-700';
 
-                          return (
-                            <tr key={row.employee.id} className="hover:bg-sky-50/40 transition-colors">
-                              {/* Row Index */}
-                              <td className="py-2 px-1 text-center font-bold text-slate-400 text-xs sticky left-0 z-10 bg-white/95 border-r border-sky-100">
-                                {idx + 1}
-                              </td>
-
-                              {/* Employee Name & Position */}
-                              <td className="py-2 px-3 sticky left-8 z-10 bg-white/95 border-r border-sky-100">
-                                <div className="font-extrabold text-slate-900 text-xs truncate max-w-[190px]">
-                                  {row.employee.user?.name || row.employee.id}
-                                </div>
-                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
-                                  <span className="font-mono font-bold text-sky-800">
-                                    {row.employee.employeeCode}
-                                  </span>
-                                  <span className="truncate max-w-[140px]">{row.employee.position}</span>
-                                </div>
-                              </td>
-
-                              {/* 1..30/31 Day Cells */}
-                              {row.records.map((rec, dIdx) => {
-                                const dayInfo = monthlyData.days[dIdx];
-                                const isWeekendDay = dayInfo.isWeekend;
-                                const isHolidayDay = dayInfo.isHoliday;
-
-                                // Determine display symbol
-                                let code = '8';
-                                let cellStyle = STATUS_CONFIG.PRESENT.cellBg;
-
-                                if (rec.status === 'DAY_OFF') {
-                                  if (isHolidayDay) {
-                                    code = 'B';
-                                    cellStyle = 'bg-amber-100/90 hover:bg-amber-200 text-amber-900 border-amber-300 font-black';
-                                  } else {
-                                    code = 'D';
-                                    cellStyle = STATUS_CONFIG.DAY_OFF.cellBg;
+                              return (
+                                <th
+                                  key={d.date}
+                                  onClick={() => handleOpenHolidayModalForDay(d.date, d.holidayName)}
+                                  title={
+                                    d.holidayName
+                                      ? `Bayram: ${d.holidayName}. O‘zgartirish uchun bosing.`
+                                      : isWeekendDay
+                                      ? `${d.dayOfWeekFull} - Dam olish kuni. Bayram yoki ish kuni deb belgilash uchun bosing.`
+                                      : `${d.dayOfWeekFull}. Bayram deb belgilash uchun bosing.`
                                   }
-                                } else if (rec.status === 'PRESENT') {
-                                  code = String(rec.workHours || 8);
-                                  cellStyle = STATUS_CONFIG.PRESENT.cellBg;
-                                } else if (rec.status === 'LATE') {
-                                  code = `${rec.workHours || 8}`;
-                                  cellStyle = STATUS_CONFIG.LATE.cellBg;
-                                } else if (rec.status === 'EXCUSED') {
-                                  code = 'J';
-                                  cellStyle = STATUS_CONFIG.EXCUSED.cellBg;
-                                } else if (rec.status === 'ABSENT') {
-                                  code = 'S';
-                                  cellStyle = STATUS_CONFIG.ABSENT.cellBg;
-                                } else if (rec.status === 'FIELD_WORK') {
-                                  code = 'X';
-                                  cellStyle = STATUS_CONFIG.FIELD_WORK.cellBg;
-                                } else if (rec.status === 'SICK_LEAVE') {
-                                  code = 'K';
-                                  cellStyle = STATUS_CONFIG.SICK_LEAVE.cellBg;
-                                }
+                                  className={`py-2 px-1 text-center min-w-[32px] cursor-pointer hover:bg-sky-200/70 transition-all border-r border-sky-100/60 ${bgClass}`}
+                                >
+                                  <div className="font-black text-xs leading-none">{d.dayNumber}</div>
+                                  <div className="text-[9px] font-bold text-slate-500 mt-0.5 leading-none">
+                                    {d.dayOfWeek}
+                                  </div>
+                                  {isHolidayDay && (
+                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mx-auto mt-0.5" />
+                                  )}
+                                </th>
+                              );
+                            })}
 
-                                return (
-                                  <td
-                                    key={rec.id || `${rec.date}-${rec.employeeId}`}
-                                    onClick={() => setCellEditTarget({ record: rec, dayInfo })}
-                                    className="p-0.5 text-center border-r border-sky-100/60"
-                                  >
-                                    <div
-                                      className={`w-7 h-7 mx-auto rounded-lg flex items-center justify-center font-bold text-xs transition-all cursor-pointer border shadow-2xs hover:scale-110 active:scale-95 ${cellStyle}`}
-                                      title={`${row.employee.user?.name}: ${dayInfo.dayNumber}-${currentMonthName} (${dayInfo.dayOfWeekFull})\nHolati: ${STATUS_CONFIG[rec.status]?.label || rec.status}\nSoat: ${rec.workHours} soat${rec.reason ? '\nSabab: ' + rec.reason : ''}`}
+                            {/* Summary Columns Header */}
+                            <th className="py-2.5 px-2 text-center min-w-[50px] bg-emerald-100/80 text-emerald-900 border-l border-emerald-200">
+                              Ish kuni
+                            </th>
+                            <th className="py-2.5 px-2 text-center min-w-[50px] bg-emerald-100/80 text-emerald-900">
+                              Soat
+                            </th>
+                            <th className="py-2.5 px-2 text-center min-w-[45px] bg-slate-200/80 text-slate-800">
+                              Dam
+                            </th>
+                            <th className="py-2.5 px-2 text-center min-w-[45px] bg-sky-100/80 text-sky-900">
+                              Javob
+                            </th>
+                            <th className="py-2.5 px-2 text-center min-w-[45px] bg-rose-100/80 text-rose-900">
+                              Sabab.
+                            </th>
+                            <th className="py-2.5 px-2 text-center min-w-[45px] bg-teal-100/80 text-teal-900">
+                              Dala
+                            </th>
+                            <th className="py-2.5 px-2 text-center min-w-[45px] bg-purple-100/80 text-purple-900">
+                              Kasal
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody className="divide-y divide-sky-100/50 bg-white/70">
+                          {md.matrix.map((row, idx) => {
+                            const fieldWorkDays = row.records.filter((r) => r.status === 'FIELD_WORK').length;
+
+                            return (
+                              <tr key={row.employee.id} className="hover:bg-sky-50/40 transition-colors">
+                                {/* Row Index */}
+                                <td className="py-2 px-1 text-center font-bold text-slate-400 text-xs sticky left-0 z-10 bg-white/95 border-r border-sky-100">
+                                  {idx + 1}
+                                </td>
+
+                                {/* Employee Name & Position */}
+                                <td className="py-2 px-3 sticky left-8 z-10 bg-white/95 border-r border-sky-100">
+                                  <div className="font-extrabold text-slate-900 text-xs truncate max-w-[190px]">
+                                    {row.employee.user?.name || row.employee.id}
+                                  </div>
+                                  <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
+                                    <span className="font-mono font-bold text-sky-800">
+                                      {row.employee.employeeCode}
+                                    </span>
+                                    <span className="truncate max-w-[140px]">{row.employee.position}</span>
+                                  </div>
+                                </td>
+
+                                {/* 1..30/31 Day Cells */}
+                                {row.records.map((rec, dIdx) => {
+                                  const dayInfo = daysList[dIdx];
+                                  if (!dayInfo) return null;
+
+                                  const isWeekendDay = dayInfo.isWeekend;
+                                  const isHolidayDay = dayInfo.isHoliday;
+
+                                  let code = '8';
+                                  let cellStyle = STATUS_CONFIG.PRESENT.cellBg;
+
+                                  if (rec.status === 'DAY_OFF') {
+                                    if (isHolidayDay) {
+                                      code = 'B';
+                                      cellStyle = 'bg-amber-100/90 hover:bg-amber-200 text-amber-900 border-amber-300 font-black';
+                                    } else {
+                                      code = 'D';
+                                      cellStyle = STATUS_CONFIG.DAY_OFF.cellBg;
+                                    }
+                                  } else if (rec.status === 'PRESENT') {
+                                    code = String(rec.workHours || 8);
+                                    cellStyle = STATUS_CONFIG.PRESENT.cellBg;
+                                  } else if (rec.status === 'LATE') {
+                                    code = `${rec.workHours || 8}`;
+                                    cellStyle = STATUS_CONFIG.LATE.cellBg;
+                                  } else if (rec.status === 'EXCUSED') {
+                                    code = 'J';
+                                    cellStyle = STATUS_CONFIG.EXCUSED.cellBg;
+                                  } else if (rec.status === 'ABSENT') {
+                                    code = 'S';
+                                    cellStyle = STATUS_CONFIG.ABSENT.cellBg;
+                                  } else if (rec.status === 'FIELD_WORK') {
+                                    code = 'X';
+                                    cellStyle = STATUS_CONFIG.FIELD_WORK.cellBg;
+                                  } else if (rec.status === 'SICK_LEAVE') {
+                                    code = 'K';
+                                    cellStyle = STATUS_CONFIG.SICK_LEAVE.cellBg;
+                                  }
+
+                                  return (
+                                    <td
+                                      key={rec.id || `${rec.date}-${rec.employeeId}`}
+                                      onClick={() => setCellEditTarget({ record: rec, dayInfo })}
+                                      className="p-0.5 text-center border-r border-sky-100/60"
                                     >
-                                      {code}
-                                    </div>
-                                  </td>
-                                );
-                              })}
+                                      <div
+                                        className={`w-7 h-7 mx-auto rounded-lg flex items-center justify-center font-bold text-xs transition-all cursor-pointer border shadow-2xs hover:scale-110 active:scale-95 ${cellStyle}`}
+                                        title={`${row.employee.user?.name || 'Xodim'}: ${dayInfo.dayNumber}-${currentMonthName} (${dayInfo.dayOfWeekFull})\nHolati: ${STATUS_CONFIG[rec.status]?.label || rec.status}\nSoat: ${rec.workHours} soat${rec.reason ? '\nSabab: ' + rec.reason : ''}`}
+                                      >
+                                        {code}
+                                      </div>
+                                    </td>
+                                  );
+                                })}
 
-                              {/* Summary Totals */}
-                              <td className="py-2 px-1 text-center font-black text-xs text-emerald-800 bg-emerald-50/60 border-l border-emerald-200">
-                                {row.summary.totalWorkDays}
-                              </td>
-                              <td className="py-2 px-1 text-center font-black text-xs text-emerald-800 bg-emerald-50/60">
-                                {row.summary.totalWorkHours}
-                              </td>
-                              <td className="py-2 px-1 text-center font-bold text-xs text-slate-600 bg-slate-100/60">
-                                {row.summary.totalDaysOff}
-                              </td>
-                              <td className="py-2 px-1 text-center font-bold text-xs text-sky-800 bg-sky-50/60">
-                                {row.summary.totalExcusedDays}
-                              </td>
-                              <td className="py-2 px-1 text-center font-black text-xs text-rose-700 bg-rose-50/60">
-                                {row.summary.totalAbsentDays}
-                              </td>
-                              <td className="py-2 px-1 text-center font-bold text-xs text-teal-800 bg-teal-50/60">
-                                {fieldWorkDays}
-                              </td>
-                              <td className="py-2 px-1 text-center font-bold text-xs text-purple-800 bg-purple-50/60">
-                                {row.summary.totalSickDays}
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                                {/* Summary Totals */}
+                                <td className="py-2 px-1 text-center font-black text-xs text-emerald-800 bg-emerald-50/60 border-l border-emerald-200">
+                                  {row.summary.totalWorkDays}
+                                </td>
+                                <td className="py-2 px-1 text-center font-black text-xs text-emerald-800 bg-emerald-50/60">
+                                  {row.summary.totalWorkHours}
+                                </td>
+                                <td className="py-2 px-1 text-center font-bold text-xs text-slate-600 bg-slate-100/60">
+                                  {row.summary.totalDaysOff}
+                                </td>
+                                <td className="py-2 px-1 text-center font-bold text-xs text-sky-800 bg-sky-50/60">
+                                  {row.summary.totalExcusedDays}
+                                </td>
+                                <td className="py-2 px-1 text-center font-black text-xs text-rose-700 bg-rose-50/60">
+                                  {row.summary.totalAbsentDays}
+                                </td>
+                                <td className="py-2 px-1 text-center font-bold text-xs text-teal-800 bg-teal-50/60">
+                                  {fieldWorkDays}
+                                </td>
+                                <td className="py-2 px-1 text-center font-bold text-xs text-purple-800 bg-purple-50/60">
+                                  {row.summary.totalSickDays}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
 
-                {/* Footer Controls & Quick Legend */}
-                <div className="p-4 bg-gradient-to-r from-sky-50/50 via-white to-sky-50/50 border-t border-sky-100 flex flex-wrap items-center justify-between gap-4">
-                  <div className="text-xs text-slate-600 font-medium">
-                    <span className="font-bold text-slate-900">Izoh:</span> Shanba va bozor kunlari (D) dam olish kuni deb avtomatik belgilangan. Har qanday xodim katakchasini bosib soatini yoki sababini qo‘lda o‘zgartirishingiz mumkin.
+                    {/* Footer Controls & Quick Legend */}
+                    <div className="p-4 bg-gradient-to-r from-sky-50/50 via-white to-sky-50/50 border-t border-sky-100 flex flex-wrap items-center justify-between gap-4">
+                      <div className="text-xs text-slate-600 font-medium">
+                        <span className="font-bold text-slate-900">Izoh:</span> Shanba va bozor kunlari (D) dam olish kuni deb avtomatik belgilangan. Har qanday xodim katakchasini bosib soatini yoki sababini qo‘lda o‘zgartirishingiz mumkin.
+                      </div>
+
+                      <a
+                        href={`/api/timesheet/export?year=${currentYear}&month=${currentMonth}&format=xls`}
+                        download
+                        className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-lg shadow-emerald-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+                      >
+                        <FileSpreadsheet className="w-4 h-4" />
+                        <span>Oylik Tabelni Excelga Yuklash (.xls)</span>
+                      </a>
+                    </div>
                   </div>
-
-                  <a
-                    href={`/api/timesheet/export?year=${currentYear}&month=${currentMonth}&format=xls`}
-                    download
-                    className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-lg shadow-emerald-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
-                  >
-                    <FileSpreadsheet className="w-4 h-4" />
-                    <span>Oylik Tabelni Excelga Yuklash (.xls)</span>
-                  </a>
                 </div>
-              </div>
-            </div>
-          )}
+              );
+            })()}
 
           {/* ========================================================= */}
           {/* 3. MODE B: DAILY DETAILED TIMESHEET (HOURLY / SOATBAY)     */}
@@ -1379,7 +1374,7 @@ export default function TimesheetPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
-                  <Flame className="w-5 h-5 text-amber-500" />
+                  <Sparkles className="w-5 h-5 text-amber-500" />
                   <span>Bayram yoki Dam Olish Kunini Belgilash</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -1404,7 +1399,7 @@ export default function TimesheetPage() {
                   type="date"
                   value={holidayFormDate}
                   onChange={(e) => setHolidayFormDate(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
                 />
               </div>
 
