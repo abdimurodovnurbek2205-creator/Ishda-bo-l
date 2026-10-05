@@ -403,6 +403,40 @@ export default function TimesheetPage() {
     setTimeout(() => setStatusMessage(''), 4000);
   };
 
+  // Save monthly matrix to backend
+  const handleSaveMonthly = async () => {
+    if (!monthlyData) return;
+    setSaving(true);
+    setStatusMessage('');
+    try {
+      const allRecords: DailyTimesheetRecord[] = [];
+      monthlyData.matrix.forEach((row) => {
+        row.records.forEach((rec) => {
+          allRecords.push(rec);
+        });
+      });
+
+      const res = await fetch('/api/timesheet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ records: allRecords }),
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        setStatusMessage(`✅ ${currentMonthName} oyi tabeli muvaffaqiyatli saqlandi!`);
+        setTimeout(() => setStatusMessage(''), 4500);
+        fetchMonthlyTimesheet(currentYear, currentMonth);
+      } else {
+        setStatusMessage('❌ Saqlashda xatolik yuz berdi.');
+      }
+    } catch (err) {
+      console.error(err);
+      setStatusMessage('❌ Server bilan aloqa uzildi.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Save daily records to backend
   const handleSaveDaily = async () => {
     setSaving(true);
@@ -527,7 +561,7 @@ export default function TimesheetPage() {
                   <span>Bayram / Dam olish kiritish</span>
                 </button>
 
-                {/* Excel Download Button */}
+                {/* Excel Download Button (Tepada Excelda yuklash) */}
                 {activeTab === 'monthly' ? (
                   <a
                     href={`/api/timesheet/export?year=${currentYear}&month=${currentMonth}&format=xls`}
@@ -536,28 +570,18 @@ export default function TimesheetPage() {
                     title={`${currentMonthName} 2026 oylik tabelini rasmiy Excel formatida yuklash`}
                   >
                     <FileSpreadsheet className="w-4 h-4" />
-                    <span>Oylik Excelni Yuklash</span>
+                    <span>Excelda yuklash</span>
                   </a>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleSaveDaily}
-                      disabled={saving}
-                      className="px-4 py-2 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-xs font-black shadow-md shadow-sky-600/25 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                      <span>{saving ? 'Saqlanmoqda...' : 'Tabelni Saqlash'}</span>
-                    </button>
-                    <a
-                      href={`/api/timesheet/export?date=${selectedDate}&format=xls`}
-                      download
-                      className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-md shadow-emerald-600/25 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
-                      title="Kunlik Excel formatida yuklash"
-                    >
-                      <FileSpreadsheet className="w-4 h-4" />
-                      <span>Kunlik Excel</span>
-                    </a>
-                  </div>
+                  <a
+                    href={`/api/timesheet/export?date=${selectedDate}&format=xls`}
+                    download
+                    className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-md shadow-emerald-600/25 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+                    title="Kunlik tabelni Excel formatida yuklash"
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    <span>Excelda yuklash</span>
+                  </a>
                 )}
               </div>
             </div>
@@ -912,18 +936,22 @@ export default function TimesheetPage() {
 
                     {/* Footer Controls & Quick Legend */}
                     <div className="p-4 bg-gradient-to-r from-sky-50/50 via-white to-sky-50/50 border-t border-sky-100 flex flex-wrap items-center justify-between gap-4">
-                      <div className="text-xs text-slate-600 font-medium">
-                        <span className="font-bold text-slate-900">Izoh:</span> Shanba va bozor kunlari (D) dam olish kuni deb avtomatik belgilangan. Har qanday xodim katakchasini bosib soatini yoki sababini qo‘lda o‘zgartirishingiz mumkin.
+                      <div className="text-xs text-slate-600 font-medium flex items-center gap-2">
+                        <Info className="w-4 h-4 text-sky-600 shrink-0" />
+                        <span>
+                          <strong className="text-slate-900">Izoh:</strong> Shanba va bozor kunlari (D) dam olish kuni deb avtomatik belgilangan. Har qanday xodim katakchasini bosib soatini yoki sababini qo‘lda o‘zgartirishingiz mumkin.
+                        </span>
                       </div>
 
-                      <a
-                        href={`/api/timesheet/export?year=${currentYear}&month=${currentMonth}&format=xls`}
-                        download
-                        className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-lg shadow-emerald-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+                      {/* Pasga Saqlash tugmasi */}
+                      <button
+                        onClick={handleSaveMonthly}
+                        disabled={saving}
+                        className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-xs font-black shadow-lg shadow-sky-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95 disabled:opacity-50"
                       >
-                        <FileSpreadsheet className="w-4 h-4" />
-                        <span>Oylik Tabelni Excelga Yuklash (.xls)</span>
-                      </a>
+                        <Save className="w-4 h-4" />
+                        <span>{saving ? 'Saqlanmoqda...' : 'Saqlash'}</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1199,17 +1227,21 @@ export default function TimesheetPage() {
 
                 {/* Bottom Bar */}
                 <div className="p-4 bg-gradient-to-r from-sky-50/50 via-white to-sky-50/50 border-t border-sky-100 flex flex-wrap items-center justify-between gap-4">
-                  <div className="text-xs text-slate-600 font-medium">
-                    <span className="font-bold text-slate-900">Eslatma:</span> «Tabelni Saqlash» tugmasi bosilganda barcha kiritilgan ma'lumotlar saqlanadi va Excelga avtomat yuklanadi.
+                  <div className="text-xs text-slate-600 font-medium flex items-center gap-2">
+                    <Info className="w-4 h-4 text-sky-600 shrink-0" />
+                    <span>
+                      <strong className="text-slate-900">Eslatma:</strong> Barcha kiritilgan o‘zgarishlar «Saqlash» tugmasi bosilganda to‘liq saqlanadi.
+                    </span>
                   </div>
 
+                  {/* Pasga Saqlash tugmasi */}
                   <button
                     onClick={handleSaveDaily}
                     disabled={saving}
-                    className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-xs font-black shadow-lg shadow-sky-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95 disabled:opacity-50"
+                    className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-xs font-black shadow-lg shadow-sky-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95 disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
-                    <span>{saving ? 'Saqlanmoqda...' : 'O‘zgarishlarni Saqlash'}</span>
+                    <span>{saving ? 'Saqlanmoqda...' : 'Saqlash'}</span>
                   </button>
                 </div>
               </div>
