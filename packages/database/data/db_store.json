@@ -413,5 +413,41 @@
       "isActive": true,
       "createdAt": "2026-09-21T09:00:00.000Z"
     }
+  ],
+  "timesheets": [
+    {
+      "id": "ts-2026-10-02-emp-boboqulov",
+      "date": "2026-10-02",
+      "employeeId": "emp-boboqulov",
+      "employeeName": "Boboqulov Adham Xushboq o‘g‘li",
+      "employeeCode": "EMP-104",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Davlat inspektori",
+      "status": "ABSENT",
+      "checkInTime": "",
+      "checkOutTime": "",
+      "workHours": 0,
+      "reason": "Sababsiz ishga kelmadi (Ogohlantirmagan)",
+      "hourlyLog": "09:00 - Ishga kelmadi. Sababsiz deb qayd etildi",
+      "recordedBy": "Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)",
+      "updatedAt": "2026-10-05T12:21:24.601Z"
+    },
+    {
+      "id": "ts-2026-10-06-emp-sirojiddin",
+      "date": "2026-10-06",
+      "employeeId": "emp-sirojiddin",
+      "employeeName": "Eshboyev Sirojiddin Urol o‘g‘li",
+      "employeeCode": "EMP-103",
+      "department": "Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi",
+      "position": "Davlat inspektori",
+      "status": "ABSENT",
+      "checkInTime": "",
+      "checkOutTime": "",
+      "workHours": 0,
+      "reason": "Sababsiz ishga kelmadi (Aloqaga chiqmadi)",
+      "hourlyLog": "09:00 - Ishga kelmadi. Sababsiz deb qayd etildi",
+      "recordedBy": "Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)",
+      "updatedAt": "2026-10-05T12:21:24.603Z"
+    }
   ]
 }

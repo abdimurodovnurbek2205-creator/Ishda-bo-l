@@ -394,6 +394,67 @@ class MemoryDatabase {
       createdAt: todayMorning.toISOString(),
     };
     this.locations.push(orozovStartPoint);
+
+    // Seed Timesheet Records (Dam olish kunlari, bayramlar va xodimlarning belgilangan holatlari)
+    const empBoboqulovRec: DailyTimesheetRecord = {
+      id: 'ts-2026-10-02-emp-boboqulov',
+      date: '2026-10-02',
+      employeeId: 'emp-boboqulov',
+      employeeName: 'Boboqulov Adham Xushboq o‘g‘li',
+      employeeCode: 'EMP-104',
+      department: 'Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi',
+      position: 'Davlat inspektori',
+      status: 'ABSENT',
+      checkInTime: '',
+      checkOutTime: '',
+      workHours: 0,
+      reason: 'Sababsiz ishga kelmadi (Ogohlantirmagan)',
+      hourlyLog: '09:00 - Ishga kelmadi. Sababsiz deb qayd etildi',
+      recordedBy: 'Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)',
+      updatedAt: new Date().toISOString(),
+    };
+    this.timesheets.set(empBoboqulovRec.id, empBoboqulovRec);
+
+    const empSirojiddinRec: DailyTimesheetRecord = {
+      id: 'ts-2026-10-06-emp-sirojiddin',
+      date: '2026-10-06',
+      employeeId: 'emp-sirojiddin',
+      employeeName: 'Eshboyev Sirojiddin Urol o‘g‘li',
+      employeeCode: 'EMP-103',
+      department: 'Bandixon tuman O‘simliklar karantini va himoyasi bo‘limi',
+      position: 'Davlat inspektori',
+      status: 'ABSENT',
+      checkInTime: '',
+      checkOutTime: '',
+      workHours: 0,
+      reason: 'Sababsiz ishga kelmadi (Aloqaga chiqmadi)',
+      hourlyLog: '09:00 - Ishga kelmadi. Sababsiz deb qayd etildi',
+      recordedBy: 'Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)',
+      updatedAt: new Date().toISOString(),
+    };
+    this.timesheets.set(empSirojiddinRec.id, empSirojiddinRec);
+
+    // 1-oktabr bayram kuni barcha xodimlar uchun
+    Array.from(this.employees.values()).forEach((emp) => {
+      const holRec: DailyTimesheetRecord = {
+        id: `ts-2026-10-01-${emp.id}`,
+        date: '2026-10-01',
+        employeeId: emp.id,
+        employeeName: emp.user?.name || 'Xodim',
+        employeeCode: emp.employeeCode,
+        department: emp.department,
+        position: emp.position,
+        status: 'DAY_OFF',
+        checkInTime: '',
+        checkOutTime: '',
+        workHours: 0,
+        reason: '1-oktabr — O‘qituvchi va murabbiylar kuni',
+        hourlyLog: 'Rasmiy bayram - Dam olish kuni',
+        recordedBy: 'Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)',
+        updatedAt: new Date().toISOString(),
+      };
+      this.timesheets.set(holRec.id, holRec);
+    });
   }
 }
 
