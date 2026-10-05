@@ -621,7 +621,15 @@ export const storeService = {
     const totalDays = getDaysInMonth(year, month);
     const employees = this.getAllEmployees().sort((a, b) => a.employeeCode.localeCompare(b.employeeCode));
 
-    const days = [];
+    const days: Array<{
+      date: string;
+      dayNumber: number;
+      dayOfWeek: string;
+      dayOfWeekFull: string;
+      isWeekend: boolean;
+      isHoliday: boolean;
+      holidayName: string | null;
+    }> = [];
     for (let day = 1; day <= totalDays; day++) {
       const monthStr = String(month).padStart(2, '0');
       const dayStr = String(day).padStart(2, '0');
