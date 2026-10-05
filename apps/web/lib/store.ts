@@ -8,6 +8,8 @@ import {
   LocationUpdatePayload,
   Geofence,
   GeofenceEvent,
+  DailyTimesheetRecord,
+  AttendanceStatus,
 } from '@repo/types';
 import { detectUzbekistanDistrict } from './uzbekistan-geocoder';
 import { calculateTotalRouteDistance, haversineDistanceKm } from './distance';
@@ -411,5 +413,121 @@ export const storeService = {
         lastUpdateAgoSeconds,
       };
     });
+  },
+
+  // 6. Daily Timesheet (Kunlik Tabel)
+  getTimesheetByDate(date: string): DailyTimesheetRecord[] {
+    const allRecords = Array.from(dbStore.timesheets.values()).filter((r) => r.date === date);
+    const employees = this.getAllEmployees();
+
+    if (allRecords.length === 0) {
+      // Create initial drafted records for all employees
+      const newRecords: DailyTimesheetRecord[] = employees.map((emp) => {
+        // Check if employee has a work session for this date
+        const empSessions = Array.from(dbStore.workSessions.values()).filter(
+          (s) => s.employeeId === emp.id && s.startedAt.startsWith(date)
+        );
+        const session = empSessions[0];
+        const checkIn = session
+          ? new Date(session.startedAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+          : '09:00';
+        const checkOut = session?.endedAt
+          ? new Date(session.endedAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+          : '18:00';
+
+        const recId = `ts-${date}-${emp.id}`;
+        const record: DailyTimesheetRecord = {
+          id: recId,
+          date,
+          employeeId: emp.id,
+          employeeName: emp.user?.name || 'Noma‘lum',
+          employeeCode: emp.employeeCode,
+          department: emp.department,
+          position: emp.position,
+          status: 'PRESENT',
+          checkInTime: checkIn,
+          checkOutTime: checkOut,
+          workHours: 8.0,
+          reason: '',
+          hourlyLog: `${checkIn} - Ishga kelgan deb belgilandi`,
+          recordedBy: 'Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)',
+          updatedAt: new Date().toISOString(),
+        };
+        dbStore.timesheets.set(recId, record);
+        return record;
+      });
+      dbStore.saveToFile();
+      return newRecords.sort((a, b) => a.employeeCode.localeCompare(b.employeeCode));
+    }
+
+    // Ensure all current employees exist in timesheet
+    let updated = false;
+    for (const emp of employees) {
+      const exists = allRecords.some((r) => r.employeeId === emp.id);
+      if (!exists) {
+        const recId = `ts-${date}-${emp.id}`;
+        const record: DailyTimesheetRecord = {
+          id: recId,
+          date,
+          employeeId: emp.id,
+          employeeName: emp.user?.name || 'Noma‘lum',
+          employeeCode: emp.employeeCode,
+          department: emp.department,
+          position: emp.position,
+          status: 'PRESENT',
+          checkInTime: '09:00',
+          checkOutTime: '18:00',
+          workHours: 8.0,
+          reason: '',
+          hourlyLog: '09:00 - Ishga kelgan deb belgilandi',
+          recordedBy: 'Bo‘riyev Shuxrat Xursandovich (Bo‘lim boshlig‘i)',
+          updatedAt: new Date().toISOString(),
+        };
+        dbStore.timesheets.set(recId, record);
+        allRecords.push(record);
+        updated = true;
+      }
+    }
+    if (updated) {
+      dbStore.saveToFile();
+    }
+
+    return allRecords.sort((a, b) => a.employeeCode.localeCompare(b.employeeCode));
+  },
+
+  saveTimesheetRecord(record: Partial<DailyTimesheetRecord> & { employeeId: string; date: string }): DailyTimesheetRecord {
+    const recId = record.id || `ts-${record.date}-${record.employeeId}`;
+    const existing = dbStore.timesheets.get(recId);
+    const emp = this.getEmployeeById(record.employeeId);
+
+    const updatedRecord: DailyTimesheetRecord = {
+      id: recId,
+      date: record.date,
+      employeeId: record.employeeId,
+      employeeName: record.employeeName || emp?.user?.name || existing?.employeeName || 'Noma‘lum',
+      employeeCode: record.employeeCode || emp?.employeeCode || existing?.employeeCode || '',
+      department: record.department || emp?.department || existing?.department || '',
+      position: record.position || emp?.position || existing?.position || '',
+      status: record.status || existing?.status || 'PRESENT',
+      checkInTime: record.checkInTime !== undefined ? record.checkInTime : (existing?.checkInTime || '09:00'),
+      checkOutTime: record.checkOutTime !== undefined ? record.checkOutTime : (existing?.checkOutTime || '18:00'),
+      workHours: record.workHours !== undefined ? record.workHours : (existing?.workHours ?? 8.0),
+      reason: record.reason !== undefined ? record.reason : (existing?.reason || ''),
+      hourlyLog: record.hourlyLog !== undefined ? record.hourlyLog : (existing?.hourlyLog || ''),
+      recordedBy: record.recordedBy || existing?.recordedBy || 'Bo‘riyev Shuxrat Xursandovich',
+      updatedAt: new Date().toISOString(),
+    };
+
+    dbStore.timesheets.set(recId, updatedRecord);
+    dbStore.saveToFile();
+    return updatedRecord;
+  },
+
+  bulkSaveTimesheet(records: (Partial<DailyTimesheetRecord> & { employeeId: string; date: string })[]): DailyTimesheetRecord[] {
+    const results: DailyTimesheetRecord[] = [];
+    for (const r of records) {
+      results.push(this.saveTimesheetRecord(r));
+    }
+    return results;
   },
 };

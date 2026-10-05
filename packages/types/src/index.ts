@@ -125,3 +125,30 @@ export interface UzbekistanDistrictInfo {
   region: string;
   district: string;
 }
+
+export type AttendanceStatus =
+  | 'PRESENT'      // Ishga kelgan
+  | 'LATE'         // Kechikib kelgan
+  | 'EXCUSED'      // Javob olgan / Ruxsat olgan
+  | 'ABSENT'       // Sababsiz kelmagan
+  | 'FIELD_WORK'   // Xizmat safari / Dala nazorati
+  | 'SICK_LEAVE'   // Kasallik varaqasi
+  | 'DAY_OFF';     // Dam olish kuni
+
+export interface DailyTimesheetRecord {
+  id: string;
+  date: string;               // YYYY-MM-DD
+  employeeId: string;
+  employeeName: string;
+  employeeCode: string;
+  department: string;
+  position: string;
+  status: AttendanceStatus;
+  checkInTime: string;        // "08:45"
+  checkOutTime: string;       // "18:00"
+  workHours: number;          // 8.0
+  reason: string;             // Sababi / Izoh
+  hourlyLog?: string;         // Soatma-soat qaydlar
+  recordedBy?: string;        // Bo‘lim boshlig‘i
+  updatedAt: string;
+}

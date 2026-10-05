@@ -1,5 +1,5 @@
 import * as schema from './schema';
-import { User, Employee, LocationPoint, WorkSession, Geofence, AuditLog } from '@repo/types';
+import { User, Employee, LocationPoint, WorkSession, Geofence, AuditLog, DailyTimesheetRecord } from '@repo/types';
 
 // Deterministic SHA-256 password hasher
 function hashPassword(password: string): string {
@@ -14,6 +14,7 @@ class MemoryDatabase {
   locations: LocationPoint[] = [];
   workSessions: Map<string, WorkSession> = new Map();
   geofences: Map<string, Geofence> = new Map();
+  timesheets: Map<string, DailyTimesheetRecord> = new Map();
   auditLogs: AuditLog[] = [];
 
   constructor() {
@@ -89,6 +90,12 @@ class MemoryDatabase {
           this.geofences.set(gf.id, gf);
         }
       }
+
+      if (parsed.timesheets && Array.isArray(parsed.timesheets)) {
+        for (const ts of parsed.timesheets) {
+          this.timesheets.set(ts.id, ts);
+        }
+      }
     } catch (err) {
       console.log('File store load error handled:', err);
     }
@@ -105,6 +112,7 @@ class MemoryDatabase {
         workSessions: Array.from(this.workSessions.values()),
         locations: this.locations,
         geofences: Array.from(this.geofences.values()),
+        timesheets: Array.from(this.timesheets.values()),
       };
       fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), 'utf8');
     } catch (err) {

@@ -14,6 +14,7 @@ import {
   Settings,
   Radio,
   ChevronRight,
+  CalendarCheck,
 } from 'lucide-react';
 import { DedicatedWorkerIcon } from './DedicatedWorkerIcon';
 
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { name: 'Hisobotlar', href: '/reports', icon: FileSpreadsheet },
   { name: 'Geozonalar', href: '/geofences', icon: ShieldAlert },
   { name: 'Sozlamalar', href: '/settings', icon: Settings },
+  { name: 'Kunlik tabel', href: '/timesheet', icon: CalendarCheck },
 ];
 
 export function Sidebar() {
