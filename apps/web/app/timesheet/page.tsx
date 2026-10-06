@@ -169,6 +169,51 @@ interface MonthlyData {
   matrix: MonthEmployeeRow[];
 }
 
+const STORAGE_KEY = 'ishda_bol_timesheet_overrides_v2';
+
+function getLocalTimesheetCache(): Record<string, Partial<DailyTimesheetRecord>> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveLocalTimesheetRecord(record: Partial<DailyTimesheetRecord> & { employeeId: string; date: string }) {
+  if (typeof window === 'undefined' || !record.employeeId || !record.date) return;
+  try {
+    const cache = getLocalTimesheetCache();
+    const key = `${record.employeeId}_${record.date}`;
+    cache[key] = {
+      ...(cache[key] || {}),
+      ...record,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
+  } catch (e) {
+    console.error('LocalStorage write error:', e);
+  }
+}
+
+function saveLocalTimesheetRecords(records: (Partial<DailyTimesheetRecord> & { employeeId: string; date: string })[]) {
+  if (typeof window === 'undefined' || !records.length) return;
+  try {
+    const cache = getLocalTimesheetCache();
+    for (const r of records) {
+      if (!r.employeeId || !r.date) continue;
+      const key = `${r.employeeId}_${r.date}`;
+      cache[key] = {
+        ...(cache[key] || {}),
+        ...r,
+      };
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
+  } catch (e) {
+    console.error('LocalStorage write error:', e);
+  }
+}
+
 export default function TimesheetPage() {
   // Navigation & View Mode
   const [activeTab, setActiveTab] = useState<'monthly' | 'daily'>('monthly');
@@ -188,6 +233,30 @@ export default function TimesheetPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>('');
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-save debouncer for daily edits
+  const triggerAutoSaveDaily = useCallback((recordsToSave: DailyTimesheetRecord[]) => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+    setAutoSaveStatus('saving');
+    autoSaveTimeoutRef.current = setTimeout(async () => {
+      try {
+        await fetch('/api/timesheet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ records: recordsToSave }),
+        });
+        setAutoSaveStatus('saved');
+        setTimeout(() => setAutoSaveStatus('idle'), 3500);
+      } catch (e) {
+        console.error('Auto save error:', e);
+        setAutoSaveStatus('idle');
+      }
+    }, 600);
+  }, []);
 
   // Cell Editor Modal state (for monthly matrix)
   const [cellEditTarget, setCellEditTarget] = useState<{
@@ -206,7 +275,7 @@ export default function TimesheetPage() {
   const [hourlyInput, setHourlyInput] = useState<string>('');
 
   // =========================================================================
-  // DATA FETCHING
+  // DATA FETCHING (Merged seamlessly with LocalStorage cache)
   // =========================================================================
   const fetchMonthlyTimesheet = useCallback(async (year: number, month: number) => {
     setLoading(true);
@@ -214,12 +283,50 @@ export default function TimesheetPage() {
       const res = await fetch(`/api/timesheet?year=${year}&month=${month}&t=${Date.now()}`);
       const data = await res.json();
       if (data && data.success && data.type === 'monthly') {
+        const cache = getLocalTimesheetCache();
+        const updatedMatrix = (data.matrix || []).map((row: MonthEmployeeRow) => {
+          let hasEdits = false;
+          const mergedRecords = row.records.map((rec: DailyTimesheetRecord) => {
+            const key = `${rec.employeeId}_${rec.date}`;
+            if (cache[key]) {
+              hasEdits = true;
+              return {
+                ...rec,
+                ...cache[key],
+              };
+            }
+            return rec;
+          });
+
+          if (!hasEdits) return row;
+
+          const workDays = mergedRecords.filter((r) => r.status === 'PRESENT' || r.status === 'LATE').length;
+          const workHours = mergedRecords.reduce((sum, r) => sum + (r.workHours || 0), 0);
+          const excusedDays = mergedRecords.filter((r) => r.status === 'EXCUSED').length;
+          const absentDays = mergedRecords.filter((r) => r.status === 'ABSENT').length;
+          const sickDays = mergedRecords.filter((r) => r.status === 'SICK_LEAVE').length;
+          const daysOff = mergedRecords.filter((r) => r.status === 'DAY_OFF').length;
+
+          return {
+            ...row,
+            records: mergedRecords,
+            summary: {
+              totalWorkDays: workDays,
+              totalWorkHours: Math.round(workHours * 10) / 10,
+              totalExcusedDays: excusedDays,
+              totalAbsentDays: absentDays,
+              totalSickDays: sickDays,
+              totalDaysOff: daysOff,
+            },
+          };
+        });
+
         setMonthlyData({
           year: data.year,
           month: data.month,
           totalDays: data.totalDays,
           days: data.days || [],
-          matrix: data.matrix || [],
+          matrix: updatedMatrix,
         });
       }
     } catch (err) {
@@ -235,7 +342,18 @@ export default function TimesheetPage() {
       const res = await fetch(`/api/timesheet?date=${dateStr}&t=${Date.now()}`);
       const data = await res.json();
       if (data && data.records) {
-        setDailyRecords(data.records);
+        const cache = getLocalTimesheetCache();
+        const mergedRecords = data.records.map((rec: DailyTimesheetRecord) => {
+          const key = `${rec.employeeId}_${rec.date}`;
+          if (cache[key]) {
+            return {
+              ...rec,
+              ...cache[key],
+            };
+          }
+          return rec;
+        });
+        setDailyRecords(mergedRecords);
       }
     } catch (err) {
       console.error('Failed to load daily timesheet:', err);
@@ -330,6 +448,45 @@ export default function TimesheetPage() {
         checkOutTime: status === 'PRESENT' || status === 'LATE' ? '18:00' : '',
       };
 
+      // Persist to local cache immediately
+      saveLocalTimesheetRecord(updatedRec);
+
+      // Optimistically update monthlyData in state for instant UI responsiveness
+      setMonthlyData((prev) => {
+        if (!prev) return prev;
+        const updatedMatrix = prev.matrix.map((row) => {
+          if (row.employee.id !== updatedRec.employeeId) return row;
+          const updatedRecords = row.records.map((r) => {
+            if (r.date === updatedRec.date) {
+              return { ...r, ...updatedRec };
+            }
+            return r;
+          });
+
+          const workDays = updatedRecords.filter((r) => r.status === 'PRESENT' || r.status === 'LATE').length;
+          const workH = updatedRecords.reduce((sum, r) => sum + (r.workHours || 0), 0);
+          const excusedDays = updatedRecords.filter((r) => r.status === 'EXCUSED').length;
+          const absentDays = updatedRecords.filter((r) => r.status === 'ABSENT').length;
+          const sickDays = updatedRecords.filter((r) => r.status === 'SICK_LEAVE').length;
+          const daysOff = updatedRecords.filter((r) => r.status === 'DAY_OFF').length;
+
+          return {
+            ...row,
+            records: updatedRecords,
+            summary: {
+              totalWorkDays: workDays,
+              totalWorkHours: Math.round(workH * 10) / 10,
+              totalExcusedDays: excusedDays,
+              totalAbsentDays: absentDays,
+              totalSickDays: sickDays,
+              totalDaysOff: daysOff,
+            },
+          };
+        });
+
+        return { ...prev, matrix: updatedMatrix };
+      });
+
       const res = await fetch('/api/timesheet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -348,14 +505,15 @@ export default function TimesheetPage() {
     }
   };
 
-  // Daily View record change handler
+  // Daily View record change handler (auto-persists to localStorage + debounced cloud sync)
   const handleDailyRecordChange = (
     employeeId: string,
     field: keyof DailyTimesheetRecord,
     value: any
   ) => {
-    setDailyRecords((prev) =>
-      prev.map((rec) => {
+    setDailyRecords((prev) => {
+      let changedRec: DailyTimesheetRecord | null = null;
+      const nextRecords = prev.map((rec) => {
         if (rec.employeeId !== employeeId) return rec;
         const updated = { ...rec, [field]: value };
 
@@ -382,24 +540,34 @@ export default function TimesheetPage() {
           else if (value === 'PRESENT' && updated.reason === 'Sababsiz ishga kelmadi') updated.reason = '';
         }
 
+        changedRec = updated;
         return updated;
-      })
-    );
+      });
+
+      if (changedRec) {
+        saveLocalTimesheetRecord(changedRec);
+      }
+      triggerAutoSaveDaily(nextRecords);
+      return nextRecords;
+    });
   };
 
   // Mark all present in daily view
   const handleMarkAllPresentDaily = () => {
-    setDailyRecords((prev) =>
-      prev.map((rec) => ({
+    setDailyRecords((prev) => {
+      const nextRecords = prev.map((rec) => ({
         ...rec,
-        status: 'PRESENT',
+        status: 'PRESENT' as AttendanceStatus,
         checkInTime: '09:00',
         checkOutTime: '18:00',
         workHours: 8.0,
         reason: '',
-      }))
-    );
-    setStatusMessage('Barcha xodimlar "Ishda" (09:00 - 18:00) deb belgilandi.');
+      }));
+      saveLocalTimesheetRecords(nextRecords);
+      triggerAutoSaveDaily(nextRecords);
+      return nextRecords;
+    });
+    setStatusMessage('Barcha xodimlar "Ishda" (09:00 - 18:00) deb belgilandi va avtomatik saqlandi.');
     setTimeout(() => setStatusMessage(''), 4000);
   };
 
@@ -415,6 +583,8 @@ export default function TimesheetPage() {
           allRecords.push(rec);
         });
       });
+
+      saveLocalTimesheetRecords(allRecords);
 
       const res = await fetch('/api/timesheet', {
         method: 'POST',
@@ -442,6 +612,8 @@ export default function TimesheetPage() {
     setSaving(true);
     setStatusMessage('');
     try {
+      saveLocalTimesheetRecords(dailyRecords);
+
       const res = await fetch('/api/timesheet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -518,30 +690,45 @@ export default function TimesheetPage() {
             {/* Row 1: View Mode Tabs + Month Quick Buttons + Actions */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               {/* Tab Switcher: Oylik vs Kunlik */}
-              <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/80 shadow-inner">
-                <button
-                  onClick={() => setActiveTab('monthly')}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
-                    activeTab === 'monthly'
-                      ? 'bg-white text-sky-800 shadow-md shadow-sky-900/5'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-                  }`}
-                >
-                  <Calendar className="w-4 h-4 text-sky-600" />
-                  <span>Oylik Tabel (2026 Matritsa)</span>
-                </button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/80 shadow-inner">
+                  <button
+                    onClick={() => setActiveTab('monthly')}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                      activeTab === 'monthly'
+                        ? 'bg-white text-sky-800 shadow-md shadow-sky-900/5'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                    }`}
+                  >
+                    <Calendar className="w-4 h-4 text-sky-600" />
+                    <span>Oylik Tabel (2026 Matritsa)</span>
+                  </button>
 
-                <button
-                  onClick={() => setActiveTab('daily')}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
-                    activeTab === 'daily'
-                      ? 'bg-white text-sky-800 shadow-md shadow-sky-900/5'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-                  }`}
-                >
-                  <Clock className="w-4 h-4 text-emerald-600" />
-                  <span>Kunlik Tabel (Soatbay)</span>
-                </button>
+                  <button
+                    onClick={() => setActiveTab('daily')}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                      activeTab === 'daily'
+                        ? 'bg-white text-sky-800 shadow-md shadow-sky-900/5'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                    }`}
+                  >
+                    <Clock className="w-4 h-4 text-emerald-600" />
+                    <span>Kunlik Tabel (Soatbay)</span>
+                  </button>
+                </div>
+
+                {autoSaveStatus === 'saving' && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold animate-pulse">
+                    <Clock className="w-3.5 h-3.5 text-amber-600 animate-spin" />
+                    <span>Bulutga saqlanmoqda...</span>
+                  </span>
+                )}
+                {autoSaveStatus === 'saved' && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-bold animate-fade-in">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Avtomatik saqlandi</span>
+                  </span>
+                )}
               </div>
 
               {/* Action Buttons: Holiday mark, Excel Export */}

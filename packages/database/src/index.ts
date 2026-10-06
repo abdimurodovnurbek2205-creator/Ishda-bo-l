@@ -7,6 +7,27 @@ function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(`salt_bandixon_2026_${password}`).digest('hex');
 }
 
+// Remote PostgreSQL client for permanent cloud persistence across server restarts
+let sqlClient: any = null;
+function getSqlClient() {
+  if (sqlClient !== null) return sqlClient;
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) return null;
+  try {
+    const postgres = require('postgres');
+    sqlClient = postgres(dbUrl, {
+      ssl: 'require',
+      max: 3,
+      idle_timeout: 20,
+      connect_timeout: 5,
+    });
+  } catch (e) {
+    console.log('Postgres client init handled:', e);
+    sqlClient = false;
+  }
+  return sqlClient || null;
+}
+
 // Storage Engine with File Persistence for dev/production fallback
 class MemoryDatabase {
   users: Map<string, User & { passwordHash: string }> = new Map();
@@ -20,6 +41,47 @@ class MemoryDatabase {
   constructor() {
     this.seedInitialData();
     this.loadFromFile();
+    this.initRemoteDb().catch(() => {});
+  }
+
+  async initRemoteDb() {
+    const sql = getSqlClient();
+    if (!sql) return;
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS timesheet_records (
+          id VARCHAR(128) PRIMARY KEY,
+          date VARCHAR(20) NOT NULL,
+          employee_id VARCHAR(64) NOT NULL,
+          data JSONB NOT NULL,
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+      `;
+      const rows = await sql`SELECT id, data FROM timesheet_records`;
+      for (const row of rows) {
+        if (row && row.data && row.id) {
+          this.timesheets.set(row.id, row.data as DailyTimesheetRecord);
+        }
+      }
+    } catch (e) {
+      console.log('Remote DB timesheets load handled:', e);
+    }
+  }
+
+  saveTimesheetRemote(record: DailyTimesheetRecord) {
+    const sql = getSqlClient();
+    if (!sql) return;
+    try {
+      sql`
+        INSERT INTO timesheet_records (id, date, employee_id, data, updated_at)
+        VALUES (${record.id}, ${record.date}, ${record.employeeId}, ${JSON.stringify(record)}, NOW())
+        ON CONFLICT (id) DO UPDATE SET
+          data = EXCLUDED.data,
+          updated_at = NOW()
+      `.catch((e: any) => console.log('Remote timesheet record save error handled:', e));
+    } catch (e) {
+      console.log('Remote timesheet save call handled:', e);
+    }
   }
 
   getDbFilePath() {

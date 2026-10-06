@@ -558,6 +558,11 @@ export const storeService = {
     const existing = dbStore.timesheets.get(recId);
     const emp = this.getEmployeeById(record.employeeId);
 
+    const weekend = isWeekend(record.date);
+    const holiday = getKnownHolidayUz(record.date);
+    const defaultStatus: AttendanceStatus = (weekend || holiday) ? 'DAY_OFF' : 'PRESENT';
+    const defaultHours = (weekend || holiday) ? 0 : 8.0;
+
     const updatedRecord: DailyTimesheetRecord = {
       id: recId,
       date: record.date,
@@ -566,11 +571,11 @@ export const storeService = {
       employeeCode: record.employeeCode || emp?.employeeCode || existing?.employeeCode || '',
       department: record.department || emp?.department || existing?.department || '',
       position: record.position || emp?.position || existing?.position || '',
-      status: record.status || existing?.status || 'PRESENT',
-      checkInTime: record.checkInTime !== undefined ? record.checkInTime : (existing?.checkInTime || ''),
-      checkOutTime: record.checkOutTime !== undefined ? record.checkOutTime : (existing?.checkOutTime || ''),
-      workHours: record.workHours !== undefined ? record.workHours : (existing?.workHours ?? 8.0),
-      reason: record.reason !== undefined ? record.reason : (existing?.reason || ''),
+      status: record.status || existing?.status || defaultStatus,
+      checkInTime: record.checkInTime !== undefined ? record.checkInTime : (existing?.checkInTime || (defaultStatus === 'DAY_OFF' ? '' : '09:00')),
+      checkOutTime: record.checkOutTime !== undefined ? record.checkOutTime : (existing?.checkOutTime || (defaultStatus === 'DAY_OFF' ? '' : '18:00')),
+      workHours: record.workHours !== undefined ? record.workHours : (existing?.workHours ?? defaultHours),
+      reason: record.reason !== undefined ? record.reason : (existing?.reason || (holiday ? `Bayram kuni: ${holiday}` : '')),
       hourlyLog: record.hourlyLog !== undefined ? record.hourlyLog : (existing?.hourlyLog || ''),
       recordedBy: record.recordedBy || existing?.recordedBy || 'Bo‘riyev Shuxrat Xursandovich',
       updatedAt: new Date().toISOString(),
@@ -578,6 +583,9 @@ export const storeService = {
 
     dbStore.timesheets.set(recId, updatedRecord);
     dbStore.saveToFile();
+    if (typeof (dbStore as any).saveTimesheetRemote === 'function') {
+      (dbStore as any).saveTimesheetRemote(updatedRecord);
+    }
     return updatedRecord;
   },
 

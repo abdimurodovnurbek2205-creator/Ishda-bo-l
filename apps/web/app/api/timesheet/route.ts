@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import { storeService } from '@/lib/store';
 import { getUzbekistanDateString } from '@/lib/date-utils';
+import { dbStore } from '@repo/database';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(request: Request) {
   try {
+    if (typeof (dbStore as any).initRemoteDb === 'function') {
+      await (dbStore as any).initRemoteDb();
+    }
     const { searchParams } = new URL(request.url);
     const monthParam = searchParams.get('month');
     const yearParam = searchParams.get('year');
@@ -64,6 +68,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    if (typeof (dbStore as any).initRemoteDb === 'function') {
+      await (dbStore as any).initRemoteDb();
+    }
     const body = await request.json();
 
     // Action 1: Set Day Type (Mark whole date as holiday, custom day off, or workday)
